@@ -1,22 +1,56 @@
 package data;
 
 import exceptions.ValidationException;
+import services.IdGenerator;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Date;
 
+
 public class City {
+
     private long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+
+
     private String name; //Поле не может быть null, Строка не может быть пустой
+
+
     private Coordinates coordinates; //Поле не может быть null
+
     private java.time.LocalDate creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+
     private Integer area; //Значение поля должно быть больше 0, Поле не может быть null
+
     private Integer population; //Значение поля должно быть больше 0, Поле не может быть null
+
     private int metersAboveSeaLevel;
+
     private java.util.Date establishmentDate;
+
+
     private Climate climate; //Поле может быть null
+
+
     private Government government; //Поле не может быть null
+
     private Human governor; //Поле не может быть null
+
+    public City(String name, Coordinates coordinates, Integer area, Integer population, int metersAboveSeaLevel, Date establishmentDate, Climate climate, Government government, Human governor) throws ValidationException {
+        this.id = IdGenerator.generateId("City");
+        this.setName(name);
+        this.setCoordinates(coordinates);
+        this.creationDate = LocalDate.now();
+        this.setArea(area);
+        this.setPopulation(population);
+        this.setMetersAboveSeaLevel(metersAboveSeaLevel);
+        this.setEstablishmentDate(establishmentDate);
+        this.setClimate(climate);
+        this.setGovernment(government);
+        this.setGovernor(governor);
+    }
+
+
 
     public String getName() {
         return name;
@@ -42,10 +76,6 @@ public class City {
 
     public LocalDate getCreationDate() {
         return creationDate;
-    }
-
-    private void setCreationDate(LocalDate creationDate) {
-        this.creationDate = creationDate;
     }
 
     public Integer getArea() {
