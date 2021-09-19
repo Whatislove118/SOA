@@ -15,7 +15,10 @@ import services.DbApi;
 import services.Utils;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 @WebServlet("/human/*")
@@ -26,9 +29,12 @@ public class HumanController extends HttpServlet {
         try {
             String body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
             JSONObject json = (JSONObject) new JSONParser().parse(body);
-            Human human = new Human((double) json.get("height"), (ZonedDateTime) json.get("birthday"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse((CharSequence) json.get("birthday"), formatter);
+            ZonedDateTime resultdate = date.atStartOfDay(ZoneId.systemDefault());
+            Human human = new Human(json.get("height").toString(), resultdate);
             System.out.println(human);
-            //save
+            DbApi.createObject(human, "Human");
             resp.setStatus(HttpServletResponse.SC_CREATED);
         } catch (ParseException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ошибка сигнатуры запроса");

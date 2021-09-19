@@ -10,8 +10,8 @@ public class Human {
     private double height; //Значение поля должно быть больше 0
     private java.time.ZonedDateTime birthday;
 
-    public Human(double height, ZonedDateTime birthday) throws ValidationException {
-        this.id = IdGenerator.generateId("Human");
+    public Human(String height, ZonedDateTime birthday) throws ValidationException {
+        //this.id = IdGenerator.generateId("Human");
         this.setHeight(height);
         this.setBirthday(birthday);
     }
@@ -20,11 +20,16 @@ public class Human {
         return height;
     }
 
-    public void setHeight(double height) throws ValidationException {
-        if (height <= 0){
-            throw new ValidationException("поле height не соблюдает условию валидации");
+    public void setHeight(String h) throws ValidationException {
+        try {
+            double height = Double.parseDouble(h);
+            if (height <= 0) {
+                throw new ValidationException("поле height не соблюдает условию валидации");
+            }
+            this.height = height;
+        }catch (NumberFormatException e){
+            throw new ValidationException("поле height должно быть числом");
         }
-        this.height = height;
     }
 
     public ZonedDateTime getBirthday() {

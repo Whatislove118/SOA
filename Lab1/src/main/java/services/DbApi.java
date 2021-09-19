@@ -5,45 +5,49 @@ import data.Coordinates;
 import data.Human;
 import exceptions.ValidationException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.ZonedDateTime;
 
 public class DbApi {
 
     public static Long createObject(Object obj, String className) throws ValidationException{
         try{
+            Connection connection = getNewConnections();
+            PreparedStatement preparedStatement = null;
+            boolean hasResult = false;
+
             switch (className) {
                 case "Coordinates":
-                    Connection connection = getNewConnections();
                     Coordinates coordinates = (Coordinates) obj;
-                    PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO coordinates values (?, ?)");
+                    preparedStatement = connection.prepareStatement("INSERT INTO coordinates(x,y) values(?, ?)");
                     preparedStatement.setLong(1, coordinates.getX());
                     preparedStatement.setDouble(2, coordinates.getY());
-                    boolean hasResult = preparedStatement.execute();
+                    hasResult = preparedStatement.execute();
                     System.out.println(hasResult);
+                    break;
                 case "Human":
-                    return null;
-                case "Climate":
-                    return null;
+                    Human human = (Human) obj;
+                    preparedStatement = connection.prepareStatement("INSERT INTO human(height,birthday) values(?, ?)");
+                    preparedStatement.setDouble(1, human.getHeight());
+                    preparedStatement.setString(2, human.getBirthday().toString());
+                    hasResult = preparedStatement.execute();
+                    System.out.println(hasResult);
+                    break;
                 case "City":
-                    return null;
-                case "Government":
                     return null;
             }
         }catch (SQLException e){
-            throw new ValidationException("параметры неверны");
+            e.printStackTrace();
         }
         return null;
     }
 
     public static Connection getNewConnections() {
         try {
+            Class.forName("org.postgresql.Driver");
             return DriverManager.getConnection("jdbc:postgresql://localhost:5432/studs", "s263156", "ygt183");
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException | ClassNotFoundException e)  {
+            e.printStackTrace();
         }
         return null;
     }
@@ -59,7 +63,7 @@ public class DbApi {
                     System.out.println(hasResult);
                     return new Coordinates(1L, 2.0);
                 case "Human":
-                    return new Human(180.5, ZonedDateTime.now());
+                    //return new Human(180.5, ZonedDateTime.now());
                 case "Climate":
                     return null;
                 case "City":

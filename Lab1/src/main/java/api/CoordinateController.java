@@ -18,6 +18,7 @@ import services.Utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,6 @@ public class CoordinateController extends HttpServlet {
             String body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
             JSONObject json = (JSONObject) new JSONParser().parse(body);
             Coordinates coordinates = new Coordinates((Long) json.get("x"), (Double) json.get("y"));
-            System.out.println(coordinates);
             DbApi.createObject(coordinates, "Coordinates");
             resp.setStatus(HttpServletResponse.SC_CREATED);
         } catch (ParseException e) {
