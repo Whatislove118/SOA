@@ -1,7 +1,5 @@
 package api;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import data.Coordinates;
 import exceptions.ValidationException;
 import jakarta.servlet.ServletException;
@@ -10,17 +8,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import services.DbApi;
+import services.CoordinatesService;
 import services.Utils;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @WebServlet("/coordinate/*")
 public class CoordinateController extends HttpServlet {
@@ -29,42 +20,46 @@ public class CoordinateController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            JSONObject json = (JSONObject) new JSONParser().parse(body);
-            Coordinates coordinates = new Coordinates((Long) json.get("x"), (Double) json.get("y"));
-            DbApi.createObject(coordinates, "Coordinates");
-            resp.setStatus(HttpServletResponse.SC_CREATED);
-        } catch (ParseException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ошибка сигнатуры запроса");
-        } catch (ValidationException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            JSONObject json = Utils.getJSONFromBody(req);
+            Coordinates coordinates = new Coordinates(json);
+            CoordinatesService.save(coordinates);
+            resp.setStatus(201);
+        }catch (ValidationException e) {
+            resp.sendError(e.getStatus(), e.getMessage());
         }
     }
 
+
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+        try{
+            JSONObject json = Utils.getJSONFromBody(req);
+            CoordinatesService.update(json);
+        }catch (ValidationException e){
+            resp.sendError(e.getStatus(), e.getMessage());
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Long id = Utils.getObjectIdFromPathVariable(req);
-            DbApi.deleteById(id);
+            JSONObject json = Utils.getJSONFromBody(req);
+            CoordinatesService.delete(json);
+            resp.setStatus(204);
         }catch (ValidationException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            resp.sendError(e.getStatus(), e.getMessage());
         }
-        super.doDelete(req, resp);
+
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Long id = Utils.getObjectIdFromPathVariable(req);
-            Coordinates coordinates = (Coordinates) DbApi.findById(id, "Coordinates");
+            long id = Utils.getObjectIdFromPathVariable(req);
+            Coordinates coordinates = CoordinatesService.findById(id);
             Utils.writeJSONObjectToResponse(coordinates, resp);
         }catch (ValidationException e){
-            resp.sendError(400, e.getMessage());
+            resp.sendError(e.getStatus(), e.getMessage());
         }
 
     }

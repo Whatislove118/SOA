@@ -1,21 +1,22 @@
 package data;
 
 import exceptions.ValidationException;
-import services.IdGenerator;
 
-import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Date;
 
 
+//@Entity
+//@Table(name = "city")
 public class City {
 
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
-
 
     private String name; //Поле не может быть null, Строка не может быть пустой
 
-
+    //@OneToOne
     private Coordinates coordinates; //Поле не может быть null
 
     private java.time.LocalDate creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
@@ -28,16 +29,17 @@ public class City {
 
     private java.util.Date establishmentDate;
 
-
+    //@OneToOne
     private Climate climate; //Поле может быть null
 
-
+    //@OneToOne
     private Government government; //Поле не может быть null
 
+    //@OneToOne
     private Human governor; //Поле не может быть null
 
     public City(String name, Coordinates coordinates, Integer area, Integer population, int metersAboveSeaLevel, Date establishmentDate, Climate climate, Government government, Human governor) throws ValidationException {
-        this.id = IdGenerator.generateId("City");
+        this.id = 1;
         this.setName(name);
         this.setCoordinates(coordinates);
         this.creationDate = LocalDate.now();
@@ -58,7 +60,7 @@ public class City {
 
     public void setName(String name) throws ValidationException {
         if (name == null || name.equals("")){
-            throw new ValidationException("поле name не соблюдает условию валидации");
+            throw new ValidationException("поле name не соблюдает условию валидации", 400);
         }
         this.name = name;
     }
@@ -69,7 +71,7 @@ public class City {
 
     public void setCoordinates(Coordinates coordinates) throws ValidationException {
         if (coordinates == null){
-            throw new ValidationException("поле coordinates не соблюдает условию валидации");
+            throw new ValidationException("поле coordinates не соблюдает условию валидации", 400);
         }
         this.coordinates = coordinates;
     }
@@ -84,7 +86,7 @@ public class City {
 
     public void setArea(Integer area) throws ValidationException {
         if (area == null || area == 0){
-            throw new ValidationException("поле are не соблюдает условию валидации");
+            throw new ValidationException("поле are не соблюдает условию валидации", 400);
         }
         this.area = area;
     }
@@ -95,7 +97,7 @@ public class City {
 
     public void setPopulation(Integer population) throws ValidationException {
         if (population == null || population == 0){
-            throw new ValidationException("поле population не соблюдает условию валидации");
+            throw new ValidationException("поле population не соблюдает условию валидации", 400);
         }
         this.population = population;
     }
@@ -130,7 +132,7 @@ public class City {
 
     public void setGovernment(Government government) throws ValidationException {
         if (government == null){
-            throw new ValidationException("поле government не соблюдает условию валидации");
+            throw new ValidationException("поле government не соблюдает условию валидации", 400);
         }
         this.government = government;
     }
@@ -141,7 +143,7 @@ public class City {
 
     public void setGovernor(Human governor) throws ValidationException {
         if (governor == null){
-            throw new ValidationException("поле governor не соблюдает условию валидации");
+            throw new ValidationException("поле governor не соблюдает условию валидации", 400);
         }
         this.governor = governor;
     }
