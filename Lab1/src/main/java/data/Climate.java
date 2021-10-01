@@ -8,4 +8,8 @@ public enum Climate {
     MONSOON,
     HUMIDSUBTROPICAL,
     SUBARCTIC;
+
+//    public static Climate getClimateByKey(String key){
+//        for
+//    }
 }

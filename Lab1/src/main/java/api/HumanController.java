@@ -14,6 +14,7 @@ import services.HumanService;
 import services.Utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet("/human/*")
 public class HumanController extends HttpServlet {
@@ -56,9 +57,14 @@ public class HumanController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            long id = Utils.getObjectIdFromPathVariable(req);
-            Human human = HumanService.findById(id);
-            Utils.writeJSONObjectToResponse(human, resp);
+            Long id = Utils.getObjectIdFromPathVariable(req);
+            if (id == null){
+                ArrayList<Human> humans = HumanService.findAll();
+                Utils.writeJSONObjectToResponse(humans, resp);
+            }else {
+                Human human = HumanService.findById(id);
+                Utils.writeJSONObjectToResponse(human, resp);
+            }
         }catch (ValidationException e){
             resp.sendError(e.getStatus(), e.getMessage());
         }

@@ -18,6 +18,9 @@
 
         <mapping class="data.Coordinates"/>
         <mapping class="data.Human"/>
+        <mapping class="data.Climate"/>
+        <mapping class="data.Government"/>
+        <mapping class="data.City"/>
 
     </session-factory>
 </hibernate-configuration>

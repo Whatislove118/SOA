@@ -1,9 +1,6 @@
 package services;
 
-import data.Climate;
-import data.Coordinates;
-import data.Government;
-import data.Human;
+import data.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -21,10 +18,11 @@ public class HibernateSessionFactoryUtil {
                 configuration.addAnnotatedClass(Human.class);
                 configuration.addAnnotatedClass(Climate.class);
                 configuration.addAnnotatedClass(Government.class);
+                configuration.addAnnotatedClass(City.class);
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());
             }catch (Exception e){
-                System.out.println("Исключение!" + e);
+                throw new RuntimeException("Подключение к базе данных отсутсвтует");
             }
         }
         return sessionFactory;

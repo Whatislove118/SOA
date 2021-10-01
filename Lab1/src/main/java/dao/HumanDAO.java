@@ -1,10 +1,13 @@
 package dao;
 
+import data.City;
 import data.Coordinates;
 import data.Human;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import services.HibernateSessionFactoryUtil;
+
+import java.util.List;
 
 public class HumanDAO {
 
@@ -35,6 +38,9 @@ public class HumanDAO {
         session.delete(human);
         tx1.commit();
         session.close();
+    }
+    public static List<Human> all(){
+        return (List<Human>) HibernateSessionFactoryUtil.getSessionFactory().openSession().createQuery("From Human").list();
     }
 
 }

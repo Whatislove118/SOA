@@ -1,7 +1,9 @@
 package services;
 
+import dao.CityDAO;
 import dao.CoordinatesDAO;
 import dao.HumanDAO;
+import data.City;
 import data.Coordinates;
 import data.Human;
 import exceptions.ValidationException;
@@ -10,6 +12,7 @@ import org.json.simple.JSONObject;
 import java.lang.reflect.Field;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class HumanService {
 
@@ -68,5 +71,9 @@ public class HumanService {
         }
         Human human = findById(id);
         HumanDAO.delete(human);
+    }
+
+    public static ArrayList<Human> findAll(){
+        return (ArrayList<Human>) HumanDAO.all();
     }
 }

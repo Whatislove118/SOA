@@ -1,6 +1,8 @@
 package services;
 
+import dao.CityDAO;
 import dao.CoordinatesDAO;
+import data.City;
 import data.Coordinates;
 import exceptions.ValidationException;
 import org.hibernate.Session;
@@ -8,6 +10,7 @@ import org.hibernate.Transaction;
 import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 
 public class CoordinatesService {
@@ -62,6 +65,10 @@ public class CoordinatesService {
         }
         Coordinates coordinates = findById(id);
         CoordinatesDAO.delete(coordinates);
+    }
+
+    public static ArrayList<Coordinates> findAll(){
+        return (ArrayList<Coordinates>) CoordinatesDAO.all();
     }
 
 }

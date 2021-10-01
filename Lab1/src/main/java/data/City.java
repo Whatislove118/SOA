@@ -1,22 +1,31 @@
 package data;
 
 import exceptions.ValidationException;
+import org.json.simple.JSONObject;
+import services.CoordinatesService;
 
+import javax.persistence.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.Locale;
 
 
-//@Entity
-//@Table(name = "city")
+@Entity
 public class City {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
 
     private String name; //Поле не может быть null, Строка не может быть пустой
 
-    //@OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="coordinates_id")
     private Coordinates coordinates; //Поле не может быть null
 
     private java.time.LocalDate creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
@@ -29,29 +38,52 @@ public class City {
 
     private java.util.Date establishmentDate;
 
-    //@OneToOne
+    @Enumerated(EnumType.STRING)
     private Climate climate; //Поле может быть null
 
-    //@OneToOne
+    @Enumerated(EnumType.STRING)
     private Government government; //Поле не может быть null
 
-    //@OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="human_id")
     private Human governor; //Поле не может быть null
 
     public City(String name, Coordinates coordinates, Integer area, Integer population, int metersAboveSeaLevel, Date establishmentDate, Climate climate, Government government, Human governor) throws ValidationException {
-        this.id = 1;
         this.setName(name);
         this.setCoordinates(coordinates);
         this.creationDate = LocalDate.now();
         this.setArea(area);
         this.setPopulation(population);
         this.setMetersAboveSeaLevel(metersAboveSeaLevel);
-        this.setEstablishmentDate(establishmentDate);
-        this.setClimate(climate);
-        this.setGovernment(government);
+        //this.setEstablishmentDate(establishmentDate);
+//        this.setClimate(climate);
+//        this.setGovernment(government);
         this.setGovernor(governor);
     }
 
+    public City() {
+
+    }
+
+    public City(JSONObject json) throws ValidationException{
+        try {
+            this.setName((String) json.get("name"));
+            System.out.println((JSONObject) json.get("coordinates"));
+            Coordinates coordinates = new Coordinates((JSONObject) json.get("coordinates"));
+            this.setCoordinates(coordinates);
+            this.setArea((int) (long) json.get("area"));
+            this.setPopulation((int) (long) json.get("population"));
+            this.setMetersAboveSeaLevel((int) (long) json.get("metersAboveSeaLevel"));
+            this.setEstablishmentDate((String) json.get("establishmentDate"));
+            this.setClimate((String) json.get("climate"));
+            this.setGovernment((String) json.get("government"));
+            Human human = new Human((JSONObject) json.get("governor"));
+            this.setGovernor(human);
+        }catch (ClassCastException e){
+            e.printStackTrace();
+            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным", 400);
+        }
+    }
 
 
     public String getName() {
@@ -59,7 +91,9 @@ public class City {
     }
 
     public void setName(String name) throws ValidationException {
-        if (name == null || name.equals("")){
+        if (name == null){
+            throw new ValidationException("поле name не представлено в запросе", 400);
+        } if(name.equals("")){
             throw new ValidationException("поле name не соблюдает условию валидации", 400);
         }
         this.name = name;
@@ -114,27 +148,50 @@ public class City {
         return establishmentDate;
     }
 
-    public void setEstablishmentDate(Date establishmentDate) {
-        this.establishmentDate = establishmentDate;
+    public void setEstablishmentDate(String establishmentDate) throws ValidationException {
+        if (establishmentDate == null){
+            throw new ValidationException("поле establishmentDate должно быть представлено в запросе", 400);
+        }
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            this.establishmentDate = formatter.parse(establishmentDate);
+        }catch (ParseException e){
+            throw new ValidationException("Неверный формат даты establishmentDate", 400);
+        }
     }
 
     public Climate getClimate() {
         return climate;
     }
 
-    public void setClimate(Climate climate) {
-        this.climate = climate;
+    public void setClimate(String climateName) throws ValidationException {
+        if (climateName == null){
+            throw new ValidationException("поле government не соблюдает условию валидации", 400);
+        }
+        for (Climate climate : Climate.values()){
+            if (climate.name().equals(climateName)){
+                this.climate = climate;
+                return;
+            }
+        }
+        throw new ValidationException("Поле climate не соответсвтует заданным значениям", 400);
     }
 
     public Government getGovernment() {
         return government;
     }
 
-    public void setGovernment(Government government) throws ValidationException {
-        if (government == null){
+    public void setGovernment(String governmentName) throws ValidationException {
+        if (governmentName == null){
             throw new ValidationException("поле government не соблюдает условию валидации", 400);
         }
-        this.government = government;
+        for (Government government : Government.values()){
+            if (government.name().equals(governmentName)){
+                this.government = government;
+                return;
+            }
+        }
+        throw new ValidationException("Поле government не соответсвтует заданным значениям", 400);
     }
 
     public Human getGovernor() {
