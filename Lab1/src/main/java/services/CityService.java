@@ -1,13 +1,11 @@
 package services;
 
 import dao.CityDAO;
-import data.City;
-import data.Coordinates;
-import data.Human;
+import data.*;
 import exceptions.ValidationException;
 import org.json.simple.JSONObject;
 
-import java.lang.reflect.Field;
+
 import java.util.ArrayList;
 
 public class CityService {
@@ -80,6 +78,32 @@ public class CityService {
         CityDAO.delete(city);
     }
 
+
+    public static int deleteByClimate(String climate) throws ValidationException{
+        if (climate == null){
+            throw new ValidationException("Параметр climate не представлен в запросе", 400);
+        }
+        try {
+            Climate climate_obj = Climate.valueOf(climate);
+            CityDAO.deleteByClimate(climate_obj);
+        }catch (IllegalArgumentException e){
+            throw new ValidationException("climate с таким значением не существует", 400);
+        }
+        return 0;
+    }
+
+    public static ArrayList<City> getByGovernment(String government, boolean isHigher) throws ValidationException {
+        if (government == null){
+            throw new ValidationException("Параметр climate не представлен в запросе", 400);
+        }
+        try {
+            Government government_obj = Government.valueOf(government);
+            return (ArrayList<City>) CityDAO.getByGovernment(government_obj, isHigher);
+        }catch (IllegalArgumentException e){
+            throw new ValidationException("climate с таким значением не существует", 400);
+        }
+
+    }
 
     public static ArrayList<City> findAll(){
         return (ArrayList<City>) CityDAO.all();

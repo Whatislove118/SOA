@@ -1,10 +1,13 @@
 package dao;
 
 import data.City;
+import data.Climate;
+import data.Government;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import services.HibernateSessionFactoryUtil;
 
+import javax.persistence.Query;
 import java.util.List;
 
 public class CityDAO {
@@ -38,7 +41,29 @@ public class CityDAO {
         session.close();
     }
 
+    public static void deleteByClimate(Climate climate){
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction tx1 = session.beginTransaction();
+        Query query = session.createQuery("delete from City where climate=:c").setParameter("c", climate);
+        int count = query.executeUpdate();
+        tx1.commit();
+        session.close();
+        System.out.println(count);
+    }
+
+    public static List<City> getByGovernment(Government government, boolean isHigher){
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Query query = null;
+        if (isHigher){
+            query = session.createQuery("From City where government>:s");
+        }else{
+            query = session.createQuery("From City where government<:s");
+        }
+        return (List<City>) query.setParameter("s", government).getResultList();
+    }
+
     public static List<City> all(){
+
         return (List<City>) HibernateSessionFactoryUtil.getSessionFactory().openSession().createQuery("From City").list();
     }
 }
