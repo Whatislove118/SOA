@@ -34,24 +34,11 @@ public class HumanService {
     public static void update(JSONObject json) throws ValidationException {
         try {
             Human human = findById((Long) json.get("id"));
-            for (Field f : human.getClass().getDeclaredFields()) {
-                f.setAccessible(true);
-                if (json.get(f.getName()) == null) {
-                    continue;
-                } else {
-                    try {
-                        if (f.getType() == ZonedDateTime.class){
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-                            ZonedDateTime value = ZonedDateTime.parse((CharSequence) json.get(f.getName()), formatter);
-                            f.set(human, value);
-                            continue;
-                        }
-                        f.set(human, f.getType().cast(json.get(f.getName())));
-                    } catch (IllegalAccessException e) {
-                        throw new ValidationException("Ошибка сигнатуры тела запроса.", 400);
-
-                    }
-                }
+            if (json.get("height") != null){
+                human.setHeight((Double) json.get("height"));
+            }
+            if (json.get("birthday") != null){
+                human.setBirthday((String) json.get("birthday"));
             }
             HumanDAO.update(human);
         }catch (ClassCastException e){

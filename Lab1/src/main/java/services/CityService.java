@@ -2,6 +2,8 @@ package services;
 
 import dao.CityDAO;
 import data.City;
+import data.Coordinates;
+import data.Human;
 import exceptions.ValidationException;
 import org.json.simple.JSONObject;
 
@@ -29,19 +31,34 @@ public class CityService {
     public static void update(JSONObject json) throws ValidationException {
         try {
             City city = findById((Long) json.get("id"));
-            for (Field f : city.getClass().getDeclaredFields()) {
-                f.setAccessible(true);
-                System.out.println(f.getName());
-                if (json.get(f.getName()) == null) {
-                    continue;
-                } else {
-                    try {
-                        f.set(city, f.getType().cast(json.get(f.getName())));
-                    } catch (IllegalAccessException e) {
-                        throw new ValidationException("Ошибка сигнатуры тела запроса", 400);
-
-                    }
-                }
+            if (json.get("name") != null){
+                city.setName((String) json.get("name"));
+            }
+            if (json.get("coordinates") != null){
+                Coordinates coordinates = new Coordinates((JSONObject) json.get("coordinates"));
+                city.setCoordinates(coordinates);
+            }
+            if (json.get("area") != null){
+                city.setArea((int) (long) json.get("name"));
+            }
+            if (json.get("population") != null){
+                city.setPopulation((int) (long) json.get("population"));
+            }
+            if (json.get("metersAboveSeaLevel") != null){
+                city.setMetersAboveSeaLevel((int) (long) json.get("metersAboveSeaLevel"));
+            }
+            if (json.get("establishmentDate") != null){
+                city.setEstablishmentDate((String) json.get("establishmentDate"));
+            }
+            if (json.get("climate") != null){
+                city.setClimate((String) json.get("climate"));
+            }
+            if (json.get("government") != null){
+                city.setGovernment((String) json.get("government"));
+            }
+            if (json.get("governor") != null){
+                Human human = new Human((JSONObject) json.get("governor"));
+                city.setGovernor(human);
             }
             CityDAO.update(city);
         }catch (ClassCastException e){

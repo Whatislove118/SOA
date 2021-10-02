@@ -33,19 +33,11 @@ public class CoordinatesService {
     public static void update(JSONObject json) throws ValidationException {
        try {
            Coordinates coordinates = findById((Long) json.get("id"));
-           for (Field f : coordinates.getClass().getDeclaredFields()) {
-               f.setAccessible(true);
-               System.out.println(f.getName());
-               if (json.get(f.getName()) == null) {
-                   continue;
-               } else {
-                   try {
-                       f.set(coordinates, f.getType().cast(json.get(f.getName())));
-                   } catch (IllegalAccessException e) {
-                       throw new ValidationException("Ошибка сигнатуры тела запроса", 400);
-
-                   }
-               }
+           if (json.get("x") != null){
+               coordinates.setX((Long) json.get("x"));
+           }
+           if (json.get("y") != null){
+               coordinates.setY((Double) json.get("y"));
            }
            CoordinatesDAO.update(coordinates);
        }catch (ClassCastException e){

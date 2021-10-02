@@ -34,12 +34,13 @@ public class Utils {
 
     public static Long getObjectIdFromPathVariable(HttpServletRequest request) throws ValidationException {
         try {
-
             StringBuffer requestUrl = request.getRequestURL();
+            if (requestUrl.substring(requestUrl.lastIndexOf("/") + 1).equals("")){
+                return null;
+            }
             return Long.parseLong(requestUrl.substring(requestUrl.lastIndexOf("/") + 1));
         }catch (NumberFormatException e){
-            return null;
-
+           throw new ValidationException("параметр id должен быть числом", 400);
         }
     }
 

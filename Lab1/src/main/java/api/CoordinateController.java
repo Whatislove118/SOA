@@ -1,6 +1,5 @@
 package api;
 
-import data.City;
 import data.Coordinates;
 import exceptions.ValidationException;
 import jakarta.servlet.ServletException;
@@ -9,7 +8,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
-import services.CityService;
 import services.CoordinatesService;
 import services.Utils;
 
