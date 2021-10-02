@@ -6,8 +6,11 @@ import data.Government;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import services.HibernateSessionFactoryUtil;
+import services.Utils;
 
 import javax.persistence.Query;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CityDAO {
@@ -63,7 +66,9 @@ public class CityDAO {
     }
 
     public static List<City> all(){
-
         return (List<City>) HibernateSessionFactoryUtil.getSessionFactory().openSession().createQuery("From City").list();
     }
+
+
+//
 }

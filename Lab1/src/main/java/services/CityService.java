@@ -3,10 +3,13 @@ package services;
 import dao.CityDAO;
 import data.*;
 import exceptions.ValidationException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CityService {
     
@@ -105,7 +108,16 @@ public class CityService {
 
     }
 
-    public static ArrayList<City> findAll(){
-        return (ArrayList<City>) CityDAO.all();
+    public static ArrayList<City> findAll(ArrayList<String> params, HttpServletRequest req){
+        if (params.size() == 0){
+            return (ArrayList<City>) CityDAO.all();
+        }
+        HashMap<String, Object> filter_params = Utils.createHashMapFilterParams(params, req);
+//        for (Map.Entry<String, Object> entry : filter_params.entrySet()){
+//            System.out.println(entry.getKey());
+//        }
+       ArrayList<City> cities = (ArrayList<City>) CityDAO.all();
+       return Utils.filterByField(cities, filter_params);
     }
+
 }

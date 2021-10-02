@@ -22,6 +22,7 @@ public class GetCityByGovernmentLowerController extends HttpServlet {
         try {
             ArrayList<City> cities = CityService.getByGovernment(government, false);
             Utils.writeJSONObjectToResponse(cities, resp);
+            resp.setContentType("application/json");
         } catch (ValidationException e) {
             resp.sendError(e.getStatus(), e.getMessage());
         }

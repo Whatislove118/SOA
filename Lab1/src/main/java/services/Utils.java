@@ -1,7 +1,7 @@
 package services;
 
 import com.google.gson.*;
-import data.Human;
+import data.*;
 import exceptions.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +14,9 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Utils {
@@ -31,34 +34,65 @@ public class Utils {
         }).create();
     }
 
+    public static ArrayList<String> fillCityParamsList(){
+        ArrayList<String> result = new ArrayList<>();
+        result.add("name");
+
+        result.add("coordinates_x");
+        result.add("coordinates_y");
+        result.add("coordinates_id");
+
+        result.add("area");
+        result.add("metersAboveSeaLevel");
+        result.add("establishmentDate");
+        result.add("population");
+
+        result.add("climate");
+        result.add("government");
+
+        result.add("governor_id");
+        result.add("governor_height");
+        result.add("governor_birthday");
+
+        return result;
+    }
+
+    public static ArrayList<String> filterCityParams(HttpServletRequest req){
+        ArrayList<String> params = fillCityParamsList();
+        ArrayList<String> result = new ArrayList<>();
+        for (String param: params){
+            String predict_parameter = req.getParameter(param);
+            if (predict_parameter == null){
+                continue;
+            }
+            System.out.println(param);
+            result.add(param);
+        }
+        return result;
+    }
+
 
 
     public static Long getObjectIdFromPathVariable(HttpServletRequest request) throws ValidationException {
         try {
             StringBuffer requestUrl = request.getRequestURL();
-            if (requestUrl.substring(requestUrl.lastIndexOf("/") + 1).equals("")){
-                return null;
-            }
             return Long.parseLong(requestUrl.substring(requestUrl.lastIndexOf("/") + 1));
         }catch (NumberFormatException e){
            throw new ValidationException("параметр id должен быть числом", 400);
         }
     }
 
+    public static HashMap<String, Object> createHashMapFilterParams(ArrayList<String> params, HttpServletRequest request){
+        HashMap<String, Object> result = new HashMap<>();
+        for (String name: params){
+            result.put(name, request.getParameter(name));
+        }
+        return result;
+    }
+
     public static void writeJSONObjectToResponse(Object object, HttpServletResponse resp) throws ValidationException {
         try {
             String a = gson().toJson(object);
-            PrintWriter writer = resp.getWriter();
-            writer.write(a);
-            resp.setStatus(200);
-        }catch (IOException e){
-            throw new ValidationException("страница недоступна", 404);
-        }
-    }
-
-    public static void writeJSONObjectToResponseForHuman(Human human, HttpServletResponse resp) throws ValidationException {
-        try {
-            String a = gson().toJson(human);
             PrintWriter writer = resp.getWriter();
             writer.write(a);
             resp.setStatus(200);
@@ -77,4 +111,76 @@ public class Utils {
             throw new ValidationException("Ошибка сигнатуры запроса. Неверный формат JSON", 400);
         }
     }
+
+    public static ArrayList<City> filterByField(ArrayList<City> list, HashMap<String,Object> map){
+        for (Map.Entry<String, Object> entry : map.entrySet()){
+            String key = entry.getKey();
+            String value = (String) entry.getValue();
+            System.out.println("filtering " + key + ": " + value);
+            try {
+                switch (key) {
+                    case "name":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getName().equals(value)).collect(Collectors.toList());
+                        break;
+                    case "coordinates_id":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            Coordinates coordinates = city.getCoordinates();
+                            return coordinates.getId() == Long.parseLong(value);
+                        }).collect(Collectors.toList());
+                        break;
+                    case "coordinates_x":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            Coordinates coordinates = city.getCoordinates();
+                            return coordinates.getX() == Long.parseLong(value);
+                        }).collect(Collectors.toList());
+                        break;
+                    case "coordinates_y":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            Coordinates coordinates = city.getCoordinates();
+                            return coordinates.getY() == Double.parseDouble(value);
+                        }).collect(Collectors.toList());
+                        break;
+                    case "area":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getArea() == Integer.parseInt(value)).collect(Collectors.toList());
+                        break;
+                    case "population":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getPopulation() == Integer.parseInt(value)).collect(Collectors.toList());
+                        break;
+                    case "metersAboveSeaLevel":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getMetersAboveSeaLevel() == Integer.parseInt(value)).collect(Collectors.toList());
+                        break;
+                    case "climate":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getClimate() == Climate.valueOf(value)).collect(Collectors.toList());
+                        break;
+                    case "government":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getGovernment() == Government.valueOf(value)).collect(Collectors.toList());
+                        break;
+                    case "governor_id":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            Human governor = city.getGovernor();
+                            return governor.getId() == Long.parseLong(value);
+                        }).collect(Collectors.toList());
+                        break;
+                    case "governor_height":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            Human governor = city.getGovernor();
+                            return governor.getHeight() == Double.parseDouble(value);
+                        }).collect(Collectors.toList());
+                        break;
+                    case "governor_birthday":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            Human governor = city.getGovernor();
+                            return governor.getBirthday().equals(value);
+                        }).collect(Collectors.toList());
+                        break;
+                }
+            }catch (ClassCastException | IllegalArgumentException e){
+                list.clear();
+                return list;
+            }
+        }
+        return list;
+    }
+
+
 }

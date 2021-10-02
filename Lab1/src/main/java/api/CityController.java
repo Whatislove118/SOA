@@ -58,13 +58,9 @@ public class CityController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Long id = Utils.getObjectIdFromPathVariable(req);
-            if (id == null){
-                ArrayList<City> city = CityService.findAll();
-                Utils.writeJSONObjectToResponse(city, resp);
-            }else {
-                City city = CityService.findById(id);
-                Utils.writeJSONObjectToResponse(city, resp);
-            }
+            City city = CityService.findById(id);
+            Utils.writeJSONObjectToResponse(city, resp);
+            resp.setContentType("application/json");
         }catch (ValidationException e){
             resp.sendError(e.getStatus(), e.getMessage());
         }

@@ -57,13 +57,9 @@ public class CoordinateController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Long id = Utils.getObjectIdFromPathVariable(req);
-            if (id == null){
-                ArrayList<Coordinates> coordinates = CoordinatesService.findAll();
-                Utils.writeJSONObjectToResponse(coordinates, resp);
-            }else {
-                Coordinates coordinates = CoordinatesService.findById(id);
-                Utils.writeJSONObjectToResponse(coordinates, resp);
-            }
+            Coordinates coordinates = CoordinatesService.findById(id);
+            Utils.writeJSONObjectToResponse(coordinates, resp);
+            resp.setContentType("application/json");
         }catch (ValidationException e){
             resp.sendError(e.getStatus(), e.getMessage());
         }
