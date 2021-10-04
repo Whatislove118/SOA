@@ -256,6 +256,26 @@ public class Utils {
     }
 
 
+    public static List<City> pagination(ArrayList<City> list, HttpServletRequest request) {
+        if (request.getParameter("page") == null | request.getParameter("pageSize") == null) {
+            return list;
+        }
+
+        int page = Integer.parseInt(request.getParameter("page"));
+        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+
+        if (page <= 0 & pageSize <= 0) {
+            return list;
+        }
+
+        int fromIndex = (page - 1) * pageSize;
+        if (list == null || list.size() <= fromIndex) {
+            return Collections.emptyList();
+        }
+
+        return list.subList(fromIndex, Math.min(fromIndex + pageSize, list.size()));
+    }
+
 
 
 }

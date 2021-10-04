@@ -27,7 +27,7 @@ public class GetAllCity extends HttpServlet {
         this.CITY_PARAMS = Utils.filterCityParams(req);
         ArrayList<City> cities = CityService.findAll(this.CITY_PARAMS, req);
         try {
-            Utils.writeJSONObjectToResponse(cities, resp);
+            Utils.writeJSONObjectToResponse(Utils.pagination(cities, req), resp);
             resp.setContentType("application/json");
         } catch (ValidationException e) {
             resp.sendError(e.getStatus(), e.getMessage());
