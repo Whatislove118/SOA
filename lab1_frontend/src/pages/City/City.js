@@ -1,9 +1,11 @@
 import React from 'react';
 
-const City = () => {
+const element = <h1> "Привет, мир" </h1>;
+const City = (props) => {
     return (
         <div>
-            <input type={'number'} defaultValue={0} />
+            {element}
+            <input type={'number'} defaultValue={props.value} />
         </div>
     )
 };
