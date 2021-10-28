@@ -2,6 +2,7 @@ package services;
 
 import com.google.gson.*;
 import data.*;
+import exceptions.ErrorObject;
 import exceptions.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -89,17 +90,30 @@ public class Utils {
         return result;
     }
 
-    public static void writeJSONObjectToResponse(Object object, HttpServletResponse resp) throws ValidationException {
+    public static void writeJSONObjectToResponse(Object object, HttpServletResponse resp) {
         try {
             String a = gson().toJson(object);
             PrintWriter writer = resp.getWriter();
             writer.write(a);
             resp.setStatus(200);
         }catch (IOException e){
-            throw new ValidationException("страница недоступна", 404);
+
         }
     }
 
+    public static void writeJSONErrorToResponse(HttpServletResponse resp, String message, int status) {
+        PrintWriter writer = null;
+        try {
+            writer = resp.getWriter();
+            ErrorObject err = new ErrorObject(message);
+            String json = gson().toJson(err);
+            writer.write(json);
+            resp.setStatus(status);
+        } catch (IOException e) {
+
+        }
+
+    }
 
 
     public static JSONObject getJSONFromBody(HttpServletRequest request) throws ValidationException {

@@ -1,6 +1,7 @@
 package api;
 
 import data.Climate;
+import exceptions.ErrorObject;
 import exceptions.ValidationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,10 +21,11 @@ public class DeleteCityByClimateController extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String climate = req.getParameter("climate");
+        resp.setContentType("application/json");
         try {
             CityService.deleteByClimate(climate);
         } catch (ValidationException e) {
-            resp.sendError(e.getStatus(), e.getMessage());
+            Utils.writeJSONErrorToResponse(resp, e.getMessage(), e.getStatus());
         }
         resp.setStatus(204);
     }
