@@ -36,7 +36,7 @@ public class Utils {
     public static ArrayList<String> fillCityParamsList(){
         ArrayList<String> result = new ArrayList<>();
         result.add("name");
-
+        result.add("id");
         result.add("coordinates_x");
         result.add("coordinates_y");
         result.add("coordinates_id");
@@ -132,6 +132,8 @@ public class Utils {
             System.out.println("filtering " + key + ": " + value);
             try {
                 switch (key) {
+                    case "id":
+                        list = (ArrayList<City>) list.stream().filter(city -> city.getId() == Integer.parseInt(value)).collect(Collectors.toList());
                     case "name":
                         list = (ArrayList<City>) list.stream().filter(city -> city.getName().equals(value)).collect(Collectors.toList());
                         break;

@@ -80,8 +80,9 @@ public class City {
             Human human = new Human((JSONObject) json.get("governor"));
             this.setGovernor(human);
         }catch (ClassCastException e){
+            System.out.println(1);
             e.printStackTrace();
-            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным", 400);
+            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным "+e, 400);
         }
     }
 
@@ -138,6 +139,14 @@ public class City {
 
     public int getMetersAboveSeaLevel() {
         return metersAboveSeaLevel;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setMetersAboveSeaLevel(int metersAboveSeaLevel) {
