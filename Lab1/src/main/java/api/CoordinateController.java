@@ -56,7 +56,7 @@ public class CoordinateController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Long id = Utils.getObjectIdFromPathVariable(req);
+            Long id = (Long)Utils.getObjectIdFromPathVariable(req);
             Coordinates coordinates = CoordinatesService.findById(id);
             Utils.writeJSONObjectToResponse(coordinates, resp);
             resp.setContentType("application/json");

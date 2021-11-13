@@ -57,7 +57,7 @@ export const ContentPage = () => {
     // }, [content])
 
     const getAll = () => {
-        fetch(`http://localhost:8080/all/city`)
+        fetch(`http://localhost:8080/city`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -75,10 +75,10 @@ export const ContentPage = () => {
 
     useEffect(() => {
         console.log(sortStructure);
-        let url = `http://localhost:8080/all/city?sort=id`
+        let url = `http://localhost:8080/city?`
         for (let field in sortStructure) {
             if (sortStructure[field] === true) {
-                url += `${field}&`;
+                url += `sort=${field}&`;
             }
         }
         fetch(url)
@@ -100,10 +100,12 @@ export const ContentPage = () => {
 
 
     const createURL = () => {
-        let str = "?";
+        let str = "";
         if (id !== ""){
-            str += `id=${id}&`
-        } if (name !== "") {
+            str += `/${id}`
+        }
+        str = str + "?"
+        if (name !== "") {
             str += `name=${name}&`
         } if (coordinate_x !== "") {
             str += `coordinates_x=${coordinate_x}&`;
@@ -132,7 +134,7 @@ export const ContentPage = () => {
     }
 
     const sendFilter = () => {
-        fetch(`http://localhost:8080/all/city${createURL()}`)
+        fetch(`http://localhost:8080/city${createURL()}`)
             .then(res => res.json())
             .then(
                 (result) => {

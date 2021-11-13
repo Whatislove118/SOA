@@ -2,17 +2,12 @@ package data;
 
 import exceptions.ValidationException;
 import org.json.simple.JSONObject;
-import services.CoordinatesService;
-
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
-import java.util.Locale;
+
 
 
 @Entity
@@ -28,7 +23,7 @@ public class City {
     @JoinColumn(name="coordinates_id")
     private Coordinates coordinates; //Поле не может быть null
 
-    private java.time.LocalDate creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+    private final java.time.LocalDate creationDate = LocalDate.now(); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
 
     private Integer area; //Значение поля должно быть больше 0, Поле не может быть null
 
@@ -51,13 +46,9 @@ public class City {
     public City(String name, Coordinates coordinates, Integer area, Integer population, int metersAboveSeaLevel, Date establishmentDate, Climate climate, Government government, Human governor) throws ValidationException {
         this.setName(name);
         this.setCoordinates(coordinates);
-        this.creationDate = LocalDate.now();
         this.setArea(area);
         this.setPopulation(population);
         this.setMetersAboveSeaLevel(metersAboveSeaLevel);
-        //this.setEstablishmentDate(establishmentDate);
-//        this.setClimate(climate);
-//        this.setGovernment(government);
         this.setGovernor(governor);
     }
 
@@ -68,7 +59,6 @@ public class City {
     public City(JSONObject json) throws ValidationException{
         try {
             this.setName((String) json.get("name"));
-            System.out.println((JSONObject) json.get("coordinates"));
             Coordinates coordinates = new Coordinates((JSONObject) json.get("coordinates"));
             this.setCoordinates(coordinates);
             this.setArea((int) (long) json.get("area"));
@@ -153,8 +143,8 @@ public class City {
         this.metersAboveSeaLevel = metersAboveSeaLevel;
     }
 
-    public Date getEstablishmentDate() {
-        return establishmentDate;
+    public int getEstablishmentDate() {
+        return establishmentDate.toInstant().getNano();
     }
 
     public void setEstablishmentDate(String establishmentDate) throws ValidationException {

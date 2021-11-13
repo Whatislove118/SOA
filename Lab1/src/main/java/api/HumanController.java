@@ -57,7 +57,7 @@ public class HumanController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Long id = Utils.getObjectIdFromPathVariable(req);
+            Long id = (Long)Utils.getObjectIdFromPathVariable(req);
             if (id == null){
                 ArrayList<Human> humans = HumanService.findAll();
                 Utils.writeJSONObjectToResponse(humans, resp);

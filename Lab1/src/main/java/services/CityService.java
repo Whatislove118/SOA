@@ -67,13 +67,7 @@ public class CityService {
         }
     }
 
-    public static void delete(JSONObject json) throws ValidationException {
-        Long id = null;
-        try {
-            id = (Long) json.get("id");
-        }catch (ClassCastException e){
-            throw new ValidationException("Ошибка сигнатуры метода", 400);
-        }
+    public static void delete(Long id) throws ValidationException {
         if (id == null){
             throw new ValidationException("поле id должно быть представлено в теле запроса", 400);
         }

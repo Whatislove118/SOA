@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -45,7 +46,7 @@ public class Utils {
         result.add("metersAboveSeaLevel");
         result.add("establishmentDate");
         result.add("population");
-
+        result.add("creationDate");
         result.add("climate");
         result.add("government");
 
@@ -76,6 +77,13 @@ public class Utils {
     public static Long getObjectIdFromPathVariable(HttpServletRequest request) throws ValidationException {
         try {
             StringBuffer requestUrl = request.getRequestURL();
+            String res = requestUrl.substring(requestUrl.lastIndexOf("/") + 1);
+            System.out.println(requestUrl.toString());
+            System.out.println(requestUrl.toString().contains("?"));
+            System.out.println(res);
+            if (res.equals("") || res.equals("city")){
+                return null;
+            }
             return Long.parseLong(requestUrl.substring(requestUrl.lastIndexOf("/") + 1));
         }catch (NumberFormatException e){
            throw new ValidationException("параметр id должен быть числом", 400);
@@ -128,7 +136,8 @@ public class Utils {
     public static ArrayList<City> filterByField(ArrayList<City> list, HashMap<String,Object> map){
         for (Map.Entry<String, Object> entry : map.entrySet()){
             String key = entry.getKey();
-            String value = (String) entry.getValue();
+            String value = (String) entry.getValue().toString().replace("&", "");
+
             System.out.println("filtering " + key + ": " + value);
             try {
                 switch (key) {
@@ -141,6 +150,11 @@ public class Utils {
                         list = (ArrayList<City>) list.stream().filter(city -> {
                             Coordinates coordinates = city.getCoordinates();
                             return coordinates.getId() == Long.parseLong(value);
+                        }).collect(Collectors.toList());
+                        break;
+                    case "establishmentDate":
+                        list = (ArrayList<City>) list.stream().filter(city -> {
+                            return city.getEstablishmentDate() == Date.from(Instant.parse(value)).toInstant().getNano();
                         }).collect(Collectors.toList());
                         break;
                     case "coordinates_x":
@@ -190,7 +204,7 @@ public class Utils {
                         break;
                     case "sort":
                         list = sortedByField(value, list);
-                        break;
+                        continue;
                     default:
                         throw new IllegalArgumentException();
                 }
@@ -204,51 +218,65 @@ public class Utils {
 
     public static ArrayList<City> sortedByField(String value, ArrayList<City> list) throws IllegalArgumentException{
             System.out.println("sorting by " + value);
-            String sortType = value.substring(0,1);
-            value = value.substring(1);
-            System.out.println(sortType);
-            if (sortType.equals("-")){
-                return reverseSorted(value, list);
-            }
-            return directSorted(sortType.concat(value), list);
-
-
-
+            return directSorted(value, list);
 
     }
 
-    private static ArrayList<City> reverseSorted(String value, ArrayList<City> list) throws IllegalArgumentException{
-        switch (value){
-            case "name":
-                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getName).reversed()).collect(Collectors.toList());
-                break;
-            case "area":
-                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getArea).reversed()).collect(Collectors.toList());
-                break;
-            case "population":
-                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getPopulation).reversed()).collect(Collectors.toList());
-                break;
-            case "metersAboveSeaLevel":
-                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getMetersAboveSeaLevel).reversed()).collect(Collectors.toList());
-                break;
-            case "climate":
-                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getClimate).reversed()).collect(Collectors.toList());
-                break;
-            case "government":
-                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getGovernment).reversed()).collect(Collectors.toList());
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-        return list;
-    }
+//    private static ArrayList<City> reverseSorted(String value, ArrayList<City> list) throws IllegalArgumentException{
+//        switch (value){
+//            case "id":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getId).reversed()).collect(Collectors.toList());
+//                break;
+//            case "coordinates_x":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(city -> city.getCoordinates().getX())).collect(Collectors.toList());
+//                break;
+//            case "coordinates_y":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(city -> city.getCoordinates().getX())).collect(Collectors.toList());
+//                break;
+//            case "name":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getName).reversed()).collect(Collectors.toList());
+//                break;
+//            case "area":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getArea).reversed()).collect(Collectors.toList());
+//                break;
+//            case "population":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getPopulation).reversed()).collect(Collectors.toList());
+//                break;
+//            case "metersAboveSeaLevel":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getMetersAboveSeaLevel).reversed()).collect(Collectors.toList());
+//                break;
+//            case "climate":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getClimate).reversed()).collect(Collectors.toList());
+//                break;
+//            case "government":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getGovernment).reversed()).collect(Collectors.toList());
+//                break;
+//            case "creationDate":
+//                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getCreationDate).reversed()).collect(Collectors.toList());
+//                break;
+//            default:
+//                throw new IllegalArgumentException();
+//        }
+//        return list;
+//    }
 
     private static ArrayList<City> directSorted(String value, ArrayList<City> list) throws IllegalArgumentException{
         System.out.println(value);
         switch (value){
+            case "id":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getId)).collect(Collectors.toList());
+                break;
             case "name":
-                System.out.println("direct");
                 list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getName)).collect(Collectors.toList());
+                break;
+            case "establishmentDate":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getEstablishmentDate)).collect(Collectors.toList());
+                break;
+            case "coordinates_x":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(city -> city.getCoordinates().getX())).collect(Collectors.toList());
+                break;
+            case "coordinates_y":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(city -> city.getCoordinates().getY())).collect(Collectors.toList());
                 break;
             case "area":
                 list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getArea)).collect(Collectors.toList());
@@ -264,6 +292,15 @@ public class Utils {
                 break;
             case "government":
                 list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getGovernment)).collect(Collectors.toList());
+                break;
+            case "creationDate":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(City::getCreationDate)).collect(Collectors.toList());
+                break;
+            case "governor_height":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(city -> city.getGovernor().getHeight())).collect(Collectors.toList());
+                break;
+            case "governor_birthday":
+                list = (ArrayList<City>) list.stream().sorted(Comparator.comparing(city -> city.getGovernor().getBirthday())).collect(Collectors.toList());
                 break;
             default:
                 throw new IllegalArgumentException();
