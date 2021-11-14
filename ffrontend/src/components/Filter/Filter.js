@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-export const Filt = (props) => {
+export const Filter = (props) => {
     return (
         <tr>
             <td><input type="text" value={props.id} onChange={(event) => props.handleId(event.target.value)}/></td>
@@ -25,5 +25,5 @@ export const Filt = (props) => {
             </select></td>
             <td><input type="text" value={props.governor} onChange={(event) => props.handleGovernor(event.target.value)}/></td>
         </tr>
-);
+    );
 };

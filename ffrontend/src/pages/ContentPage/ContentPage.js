@@ -4,8 +4,10 @@ import {toast, Toaster} from "react-hot-toast";
 import {PaginationList} from "../../paginationList/paginationList";
 import {countPage} from "../../Utils/countPage";
 import style from "../../paginationList/paginationList.scss"
+import {ALL, FILTER, SORT} from "../../Utils/modes";
 
 export const ContentPage = () => {
+    const [mode, setMode] = useState("");
     const [content, setContent] = useState([]);
     const [id, setId] = useState("");
     const [name, setName] = useState("");
@@ -42,68 +44,288 @@ export const ContentPage = () => {
     const pages = []
     countPage(pages, pagesCount, currentPage);
 
-    // const getPage = () => {
-    //     fetch(`http://localhost:8080/Lab1/all/city?page=${currentPage}&pageSize=${perPage}`)
-    //         .then(res => res.json())
-    //         .then(
-    //             (result) => {
-    //                 setContent(result);
-    //             }
-    //         )
-    // }
-                               
-    // useEffect(() => {
-    //             countPage(pages, pagesCount, currentPage);
-    // }, [content])
-
-    const getAll = () => {
-        fetch(`http://localhost:8080/city`)
-            .then(res => res.json())
-            .then(status)
-            .then(
-                (result) => {
-                    setContent(result)
-                    setTotalCount(result.length)
-                    countPage(pages, pagesCount, currentPage);
-                    // getPage();
-                }
-            ).catch(error => {
-            console.log('error, sry')
-        })
-    }
+    useEffect(() => {
+        switch (mode) {
+            case ALL:
+                getAll();
+                break;
+            case FILTER:
+                sendFilter();
+                break;
+            case SORT:
+                sendSort();
+                break
+        }
+    }, [currentPage]);
 
     useEffect(() => {
         getAll();
     }, [])
 
     useEffect(() => {
-        console.log(sortStructure);
-        let url = `http://localhost:8080/city?`
+        getOneCity();
+    }, [id])
+
+    useEffect(() => {
+        // console.log(sortStructure);
+        // let url = `http://localhost:8080/city?`
+        // for (let field in sortStructure) {
+        //     if (sortStructure[field] === true) {
+        //         url += `sort=${field}&`;
+        //     }
+        // }
+        // fetch(url)
+        //     .then(res => res.json())
+        //     .then(status)
+        //     .then(
+        //         (result) => {
+        //             setContent(result);
+        //             countPage(pages, pagesCount, currentPage);
+        //             // getPage();
+        //         }
+        //     ).catch(error => {
+        //     console.log('error, sry')
+        // })
+        setMode(SORT);
+        sendSort();
+    }, [sortStructure])
+
+    useEffect(() => {
+        setMode(FILTER);
+        sendFilter();
+    }, [id, name, coordinate_x, coordinate_y, creationData, area, population, metersAboveSeaLevel, establishmentDate, climate,
+        government, governor_height, governor_birthday])
+
+    const getOneCity = () => {
+        fetch(`http://localhost:8080/city/${id}`)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (result.total > 0) {
+                        setContent(result.content);
+                        setTotalCount(result.total);
+                    } else {
+                        getAll();
+                    }
+                },
+                (err) => {
+                    setContent([]);
+                    setTotalCount(0);
+                }
+            )
+    }
+
+    const getAll = () => {
+        fetch(`http://localhost:8080/city?page=${currentPage}&pageSize=${perPage}`)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    setContent(result.content);
+                    setTotalCount(result.total);
+                },
+                (error) => {
+                    toast.error("Сервис сейчас недоступен");
+                }
+            )
+    }
+
+    const sendFilter = () => {
+        fetch(`http://localhost:8080/Lab1/city/?page=${currentPage}&pageSize=${perPage}${createURL()}`)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (perPage > result.total) {
+                        setCurrentPage(1);
+                    }
+                    setTotalCount(result.total);
+                    setContent(result.content);
+                },
+                (error) => {
+                    toast.error("Сервис сейчас недоступен");
+                }
+            )
+    }
+
+    const sendSort = () => {
+        let url = `http://localhost:8080/Lab1/city?page=${currentPage}&pageSize=${perPage}&sort&`
         for (let field in sortStructure) {
             if (sortStructure[field] === true) {
-                url += `sort=${field}&`;
+                url += `${field}&`;
             }
         }
         fetch(url)
             .then(res => res.json())
-            .then(status)
             .then(
                 (result) => {
-                    setContent(result);
-                    countPage(pages, pagesCount, currentPage);
-                    // getPage();
+                    setTotalCount(result.total);
+                    setContent(result.content);
+                },
+                (error) => {
+                    toast.error("Сервис сейчас недоступен");
                 }
-            ).catch(error => {
-            console.log('error, sry')
+            )
+    }
+
+    const create = () => {
+        fetch("http://localhost:8080/city/", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(city())
         })
-    }, [sortStructure])
+            .then(async (response) => {
+                if (
+                    Math.trunc(response.status / 100) === 4
+                    || Math.trunc(response.status / 100) === 5
+                    || response.status === 429
+                ) {
+                    toast.error(await response.text());
+                } else {
+                    toast.success("Созданно");
+                    sendFilter();
+                }
+            })
+            .catch((err) => {
+                toast.error("Сервис сейчас недоступен");
+            })
+    }
 
-    useEffect(() => {
-        sendFilter();
-        countPage(pages, pagesCount, currentPage);
-    }, [id, name, coordinate_x, coordinate_y, creationData, area, population, metersAboveSeaLevel, establishmentDate, climate,
-        government, governor_height, governor_birthday])
+    const deleteCity = (id) => {
+        if (id !== "") {
+            fetch("http://localhost:8080/city",{
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify({
+                    "id": parseInt(id)
+                })
+            })
+            .then(async (response) => {
+                if (
+                    Math.trunc(response.status / 100) === 4
+                    || Math.trunc(response.status / 100) === 5
+                    || response.status === 429
+                ) {
+                    toast.error(await response.text());
+                } else {
+                    toast.success("Удалено");
+                    sendFilter();
+                }
+            })
+            .catch((err) => {
+                toast.error("Сервис сейчас недоступен");
+            })
+        }
+    }
 
+    const deleteByClimate = () => {
+
+        if (climate != "") {
+            fetch(`http://localhost:8080/Lab1//delete/capital?climate=${climate}`, {
+                method: "DELETE"
+            })
+                .then(async (response) => {
+                    if (
+                        Math.trunc(response.status / 100) === 4
+                        || Math.trunc(response.status / 100) === 5
+                        || response.status === 429
+                    ) {
+                        toast.error(await response.text());
+                    } else {
+                        toast.success("Удаленно");
+                    }
+                })
+                .catch((err) => {
+                    toast.error("Сервис сейчас недоступен");
+                })
+        } else {
+            toast.error("Поле capital незаданно");
+        }
+    }
+
+    const getWithHigherGovernment = () => {
+        if (government != "") {
+            fetch(`localhost:8080/city/by/government/higher?government=${government}`)
+                .then(async (response) => {
+                    if (
+                        Math.trunc(response.status / 100) === 4
+                        || Math.trunc(response.status / 100) === 5
+                        || response.status === 429
+                    ) {
+                        toast.error(await response.text());
+                    } else {
+                        toast.success("Удаленно");
+                    }
+                })
+                .catch((err) => {
+                    toast.error("Сервис сейчас недоступен");
+                })
+        }
+        // .then(async (response) => {
+        //     if (
+        //         Math.trunc(response.status / 100) === 4
+        //         || Math.trunc(response.status / 100) === 5
+        //         || response.status === 429
+        //     ) {
+        //         toast.error(await response.text());
+        //     } else {
+        //         setContent(await response.json());
+        //     }
+        // })  // .then(async (response) => {
+        //     if (
+        //         Math.trunc(response.status / 100) === 4
+        //         || Math.trunc(response.status / 100) === 5
+        //         || response.status === 429
+        //     ) {
+        //         toast.error(await response.text());
+        //     } else {
+        //         setContent(await response.json());
+        //     }
+        // })
+    }
+
+    const getWithLowerGovernment = () => {
+        if (government != "") {
+            fetch(`localhost:8080/city/by/government/lower?government=${government}`)
+                .then(async (response) => {
+                    if (
+                        Math.trunc(response.status / 100) === 4
+                        || Math.trunc(response.status / 100) === 5
+                        || response.status === 429
+                    ) {
+                        toast.error(await response.text());
+                    } else {
+                        toast.success("Удаленно");
+                    }
+                })
+                .catch((err) => {
+                    toast.error("Сервис сейчас недоступен");
+                })
+        }
+    }
+
+    const sendUpdate = (id, field, content) => {
+        fetch("http://localhost:8080/city/", {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(createJSON(id, field, content))
+        })
+            .then(async (response) => {
+                if (
+                    Math.trunc(response.status / 100) === 4
+                    || Math.trunc(response.status / 100) === 5
+                    || response.status === 429
+                ) {
+                    toast.error(await response.text());
+                } else {
+                    toast.success("Изменено");
+                }
+            })
+    }
 
     const createURL = () => {
         let str ="?"
@@ -136,26 +358,6 @@ export const ContentPage = () => {
             str += `governor_height=${governor_height}&`;
         }
         return str;
-    }
-
-    const sendFilter = () => {
-        fetch(`http://localhost:8080/city${createURL()}`)
-            .then(res => res.json())
-            .then(status)
-            .then(
-                (result) => {
-                    setContent(result)
-                }
-            ).catch(error => {
-                console.log('error, sry')
-        })
-    }
-
-    function status(res) {
-        if (!res.ok) {
-            return Promise.reject()
-        }
-        return res;
     }
 
     //todo return
@@ -196,203 +398,9 @@ export const ContentPage = () => {
         setGovernorHeight("");
     }
 
-    const create = () => {
-        fetch("http://localhost:8080/city/", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(city())
-        }).then(sendFilter);
-    }
-
-    const sendSort = (url) => {
-        fetch(url)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    setContent(result);
-                }
-            )
-    }
-
-    const sort = (name, status) => {
-        setSortStructure({...sortStructure, [name]: status});
-
-    }
-
-
-
-    const deleteCity = (id) => {
-        if (id !== "") {
-            fetch("http://localhost:8080/city",{
-                method: "DELETE",
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify({
-                    "id": parseInt(id)
-                })
-            }).then(
-                (result) => {
-                }
-            ).then(sendFilter)
-        }
-    }
-
-    const createJSON = (id, field, content) => {
-
-        switch (field) {
-            case("name"):
-                return {
-                    id: id,
-                    name: content
-                }
-            case ("coordinate_x"):
-                return {
-                    id: id,
-                    coordinate_x: parseInt(content)
-                }
-            case ("coordinate_y"):
-                return {
-                    id: id,
-                    coordinate_y: parseFloat(content)
-                }
-            case ("area"):
-                return {
-                    id: id,
-                    area: parseInt(content)
-                }
-            case ("population"):
-                return {
-                    id: id,
-                    population: parseInt(content)
-                }
-            case ("metersAboveSeaLevel"):
-                return {
-                    id: id,
-                    metersAboveSeaLevel: parseInt(content)
-                }
-            case ("establishmentDate"):
-                return {
-                    id: id,
-                    establishmentDate: content
-                }
-            case ("climate"):
-                return {
-                    id: id,
-                    climate: content
-                }
-            case ("government"):
-                return {
-                    id: id,
-                    government: content
-                }
-            case ("governor_height"):
-                return {
-                    id: id,
-                    governor_height: content
-                }
-            case ("governor_birthday"):
-                return {
-                    id: id,
-                    governor_birthday: content
-                }
-
-        }
-    }
-
-    const sendUpdate = (id, field, content) => {
-        fetch("http://localhost:8080/city/", {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(createJSON(id, field, content))
-        })
-        .then(async (response) => {
-            if (
-                Math.trunc(response.status / 100) === 4
-                || Math.trunc(response.status / 100) === 5
-                || response.status === 429
-            ) {
-                toast.error(await response.text());
-            } else {
-                toast.success("Изменено");
-            }
-        })
-    }
-
     const checkEnter = (e, id, field, content) => {
         if (e.key === 'Enter' || e.keyCode === 13) {
             sendUpdate(id, field, content)
-        }
-    }
-
-    const deleteByClimate = () => {
-
-        if (climate != "") {
-            fetch(`http://localhost:8080/Lab1//delete/capital?climate=${climate}`, {
-                method: "DELETE"
-            })
-                .then(async (response) => {
-                    if (
-                        Math.trunc(response.status / 100) === 4
-                        || Math.trunc(response.status / 100) === 5
-                        || response.status === 429
-                    ) {
-                        toast.error(await response.text());
-                    } else {
-                        toast.success("Удаленно");
-                    }
-                })
-        } else {
-            toast.error("Поле capital незаданно");
-        }
-    }
-
-    const getWithHigherGovernment = () => {
-        if (government != "") {
-        fetch(`localhost:8080/city/by/government/higher?government=${government}`)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    setContent(result)
-                }
-            )
-        }
-            // .then(async (response) => {
-            //     if (
-            //         Math.trunc(response.status / 100) === 4
-            //         || Math.trunc(response.status / 100) === 5
-            //         || response.status === 429
-            //     ) {
-            //         toast.error(await response.text());
-            //     } else {
-            //         setContent(await response.json());
-            //     }
-            // })  // .then(async (response) => {
-            //     if (
-            //         Math.trunc(response.status / 100) === 4
-            //         || Math.trunc(response.status / 100) === 5
-            //         || response.status === 429
-            //     ) {
-            //         toast.error(await response.text());
-            //     } else {
-            //         setContent(await response.json());
-            //     }
-            // })
-    }
-
-    const getWithLowerGovernment = () => {
-        if (government != "") {
-            fetch(`localhost:8080/city/by/government/lower?government=${government}`)
-                .then(res => res.json())
-                .then(
-                    (result) => {
-                        setContent(result)
-                    }
-                )
         }
     }
 
@@ -453,8 +461,6 @@ export const ContentPage = () => {
             </tr>
 
             <Content
-                current={currentPage}
-                perPage={perPage}
                 sendUpdate={(id, name, content) => sendUpdate(id, name, content)}
                 checkEnter={(e, id, name, content) => checkEnter(e, id, name, content)}
                 onClick={(id) => deleteCity(id)}
@@ -471,143 +477,3 @@ export const ContentPage = () => {
         </div>
 );
 };
-
-
-
-
-// export const ContentPage = () => {
-//     const [objectStructure, setObjectStructure] = useState({});
-//     const [content, setContent] = useState({});
-//
-//     const location = useLocation();
-//     const dispatch = useDispatch();
-//
-//     //todo ?????
-//     useEffect(() => {
-//         setObjectStructure(
-//             getObjectStructureByPathName(
-//                 `/${location.pathname.split('/')[1]}`
-//             )
-//         )
-//         let arr = [];
-//         for (let i = 0; i < 10; i++){
-//             switch (`/${location.pathname.split('/')[1]}`) {
-//                 default:
-//                     arr.push({});
-//                 case city_page:
-//                     arr.push(constructCity({}));
-//                     break;
-//                 case coordinate_page:
-//                     arr.push(constructCoordinate({}));
-//                     break;
-//                 case human_page:
-//                     arr.push(constructHuman({}));
-//                     break;
-//             }
-//         }
-//         setContent(arr);
-//     }, [location.pathname])
-//
-//     //todo ???
-//     useEffect(() => {
-//         dispatch(setObject({}));
-//     }, [location.pathname])
-//
-//     const getObjectStructureByPathName = (path) => {
-//         switch (path) {
-//             default:
-//                 return {};
-//             case city_page:
-//                 return CityStructure;
-//             case coordinate_page:
-//                 return CoordinatesStructure;
-//             case human_page:
-//                 return HumanStructure;
-//         }
-//     }
-//
-//     const mem = [
-//         {
-//             "id": 249,
-//             "name": "MSK",
-//             "coordinates": {
-//                 "id": 250,
-//                 "x": 21,
-//                 "y": 32.2
-//             },
-//             "creationDate": {
-//                 "date": {
-//                     "year": 2021,
-//                     "month": 10,
-//                     "day": 3
-//                 },
-//                 "time": {
-//                     "hour": 12,
-//                     "minute": 11,
-//                     "second": 55,
-//                     "nano": 895365000
-//                 }
-//             },
-//             "area": 4,
-//             "population": 9,
-//             "metersAboveSeaLevel": 3,
-//             "timezone": 3.3,
-//             "capital": true,
-//             "government": "DEMARCHY",
-//             "governor": {
-//                 "id": 251,
-//                 "name": "Vasya"
-//             }
-//         },
-//         {
-//             "id": 261,
-//             "name": "B",
-//             "coordinates": {
-//                 "id": 262,
-//                 "x": 20,
-//                 "y": 31.1
-//             },
-//             "creationDate": {
-//                 "date": {
-//                     "year": 2021,
-//                     "month": 10,
-//                     "day": 3
-//                 },
-//                 "time": {
-//                     "hour": 21,
-//                     "minute": 47,
-//                     "second": 44,
-//                     "nano": 522836000
-//                 }
-//             },
-//             "area": 10,
-//             "population": 8,
-//             "metersAboveSeaLevel": 2,
-//             "timezone": 2.2,
-//             "capital": false,
-//             "government": "DEMARCHY",
-//             "governor": {
-//                 "id": 263,
-//                 "name": "vv"
-//             }
-//         }
-//     ]
-//
-// // usememo хук
-//     return (
-//         <div>
-//             {/*<Filters*/}
-//             {/*    object={location*/}
-//             {/*        .pathname.split('/')[1]*/}
-//             {/*        .toUpperCase()}*/}
-//             {/*    method={'Post'}*/}
-//             {/*    objectStructure={objectStructure}*/}
-//             {/*    onSubmitAction={() => {}}*/}
-//             {/*/>*/}
-//
-//
-//             <Content cont={mem} />
-//             {/*<PaginationList itmes={content} />*/}
-//         </div>
-//     );
-// };

@@ -1,6 +1,7 @@
 package api;
 
 import data.City;
+import data.Resp;
 import exceptions.ValidationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +14,7 @@ import services.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 @WebServlet("/city/*")
@@ -61,6 +63,7 @@ public class CityController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List list = new ArrayList();
         resp.setContentType("application/json");
         try {
             Long id = Utils.getObjectIdFromPathVariable(req);
@@ -70,7 +73,9 @@ public class CityController extends HttpServlet {
                 Utils.writeJSONObjectToResponse(Utils.pagination(cities, req), resp);
             }else {
                 City city = CityService.findById(id);
-                Utils.writeJSONObjectToResponse(city, resp);
+                list.add(city);
+                Utils.writeJSONObjectToResponse(new Resp(list.size(), list), resp);
+//                Utils.writeJSONObjectToResponse(city, resp);
             }
         }catch (ValidationException e){
             Utils.writeJSONErrorToResponse(resp, e.getMessage(), e.getStatus());

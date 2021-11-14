@@ -199,6 +199,7 @@ public class Utils {
                     case "governor_birthday":
                         list = (ArrayList<City>) list.stream().filter(city -> {
                             Human governor = city.getGovernor();
+//                            return governor.getBirthday().equals(value);
                             return governor.getBirthday().equals(value);
                         }).collect(Collectors.toList());
                         break;
@@ -308,26 +309,45 @@ public class Utils {
         return list;
     }
 
-
-    public static List<City> pagination(ArrayList<City> list, HttpServletRequest request) {
+    public static Resp pagination(ArrayList<City> list, HttpServletRequest request) {
         if (request.getParameter("page") == null | request.getParameter("pageSize") == null) {
-            return list;
+            return new Resp(list.size(), list);
         }
 
         int page = Integer.parseInt(request.getParameter("page"));
         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
 
         if (page <= 0 & pageSize <= 0) {
-            return list;
+            return new Resp(list.size(), list);
         }
 
         int fromIndex = (page - 1) * pageSize;
         if (list == null || list.size() <= fromIndex) {
-            return Collections.emptyList();
+            return new Resp(0, Collections.emptyList());
         }
 
-        return list.subList(fromIndex, Math.min(fromIndex + pageSize, list.size()));
+
+        return new Resp(list.size(), list.subList(fromIndex, Math.min(fromIndex + pageSize, list.size())));
     }
+//    public static List<City> pagination(ArrayList<City> list, HttpServletRequest request) {
+//        if (request.getParameter("page") == null | request.getParameter("pageSize") == null) {
+//            return list;
+//        }
+//
+//        int page = Integer.parseInt(request.getParameter("page"));
+//        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+//
+//        if (page <= 0 & pageSize <= 0) {
+//            return list;
+//        }
+//
+//        int fromIndex = (page - 1) * pageSize;
+//        if (list == null || list.size() <= fromIndex) {
+//            return Collections.emptyList();
+//        }
+//
+//        return list.subList(fromIndex, Math.min(fromIndex + pageSize, list.size()));
+//    }
 
 
 
