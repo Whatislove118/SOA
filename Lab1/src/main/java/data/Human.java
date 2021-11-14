@@ -4,6 +4,7 @@ import exceptions.ValidationException;
 import org.json.simple.JSONObject;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,9 +30,9 @@ public class Human {
     public Human(JSONObject json) throws ValidationException{
         try {
             this.setHeight((Double) json.get("height"));
-            this.setBirthday((String) json.get("birthday"));
+            this.setBirthday((String)json.get("birthday"));
         }catch (ClassCastException e){
-            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным", 400);
+            throw new ValidationException("Ошибка сигнатуры запроса сущности Governor. Типы переменных не соответсвтуеют заданным", 400);
         }
     }
 
@@ -66,9 +67,8 @@ public class Human {
         }
     }
 
-    public String getBirthday() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-        return birthday.format(formatter);
+    public LocalDateTime getBirthday() {
+        return birthday.toLocalDateTime();
     }
 
     public void setBirthday(String birthday) throws ValidationException {
@@ -76,8 +76,8 @@ public class Human {
             throw new ValidationException("поле birthday должно быть представлено в запросе", 400);
         }
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-            this.birthday = ZonedDateTime.parse(birthday, formatter);
+            LocalDateTime dt = LocalDateTime.parse(birthday);
+            this.birthday = dt.atZone(ZoneId.systemDefault());
         }catch (DateTimeParseException e){
             throw new ValidationException("Неверный формат даты", 400);
         }

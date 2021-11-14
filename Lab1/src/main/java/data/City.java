@@ -6,8 +6,10 @@ import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-
+import java.util.Locale;
 
 
 @Entity
@@ -72,7 +74,7 @@ public class City {
         }catch (ClassCastException e){
             System.out.println(1);
             e.printStackTrace();
-            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным1", 400);
+            throw new ValidationException("Ошибка сигнатуры запроса сущности City. Типы переменных не соответсвтуеют заданным", 400);
         }
     }
 
@@ -110,7 +112,7 @@ public class City {
     }
 
     public void setArea(Integer area) throws ValidationException {
-        if (area == null || area == 0){
+        if (area == null || area < 0){
             throw new ValidationException("поле are не соблюдает условию валидации", 400);
         }
         this.area = area;
@@ -121,7 +123,7 @@ public class City {
     }
 
     public void setPopulation(Integer population) throws ValidationException {
-        if (population == null || population == 0){
+        if (population == null || population < 0){
             throw new ValidationException("поле population не соблюдает условию валидации", 400);
         }
         this.population = population;
@@ -139,20 +141,23 @@ public class City {
         this.id = id;
     }
 
-    public void setMetersAboveSeaLevel(int metersAboveSeaLevel) {
+    public void setMetersAboveSeaLevel(Integer metersAboveSeaLevel) throws ValidationException {
+        if (metersAboveSeaLevel == null){
+            throw new ValidationException("Поле metersAboveSeaLevel должно быть представлено в запросе", 400);
+        }
         this.metersAboveSeaLevel = metersAboveSeaLevel;
     }
 
-    public int getEstablishmentDate() {
-        return establishmentDate.toInstant().getNano();
+    public Date getEstablishmentDate() {
+        return establishmentDate;
     }
 
     public void setEstablishmentDate(String establishmentDate) throws ValidationException {
         if (establishmentDate == null){
             throw new ValidationException("поле establishmentDate должно быть представлено в запросе", 400);
         }
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             this.establishmentDate = formatter.parse(establishmentDate);
         }catch (ParseException e){
             throw new ValidationException("Неверный формат даты establishmentDate", 400);

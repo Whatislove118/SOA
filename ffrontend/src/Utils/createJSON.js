@@ -7,49 +7,104 @@ export const createJSON = (id, field, content) => {
                 name: content
             }
         case ("coordinate_x"):
-            return {
-                id: id,
-                coordinate_x: parseInt(content)
+            if(content == ""){
+                return {
+                    id: id,
+                    coordinate_x: content
+                }
+            }else {
+                return {
+                    id: id,
+                    coordinate_x: parseInt(content)
+                }
             }
         case ("coordinate_y"):
-            return {
-                id: id,
-                coordinate_y: parseFloat(content)
+            if(content == "") {
+                return {
+                    id: id,
+                    coordinate_x: content
+                }
+            }else {
+                return {
+                    id: id,
+                    coordinate_y: parseFloat(content)
+                }
             }
         case ("area"):
-            return {
-                id: id,
-                area: parseInt(content)
+            if(content == "") {
+                return {
+                    id: id,
+                    area: content
+                }
+            }else{
+                return {
+                    id: id,
+                    area: parseInt(content)
+                }
             }
         case ("population"):
-            return {
-                id: id,
-                population: parseInt(content)
+            if(content == "") {
+                return {
+                    id: id,
+                    population: content
+                }
+            }else {
+                return {
+                    id: id,
+                    population: parseInt(content)
+                }
             }
         case ("metersAboveSeaLevel"):
-            return {
-                id: id,
-                metersAboveSeaLevel: parseInt(content)
+            if(content == "") {
+                return {
+                    id: id,
+                    metersAboveSeaLevel: content
+                }
+            }else{
+                return {
+                    id: id,
+                    metersAboveSeaLevel: parseInt(content)
+                }
             }
-        case ("timezone"):
-            return {
-                id: id,
-                timezone: parseFloat(content)
+        case ("establishmentDate"):
+            if(content == "") {
+                return {
+                    id: id,
+                    establishmentDate: content
+                }
+            }else{
+                return {
+                    id: id,
+                    establishmentDate: parseFloat(content)
+                }
             }
-        case ("capital"):
+        case (""):
             return {
                 id: id,
                 capital: Boolean(content)
             }
         case ("government"):
+                return {
+                    id: id,
+                    government: content
+                }
+        case ("climate"):
             return {
                 id: id,
-                government: content
+                climate: content
             }
-        case ("governor"):
-            return {
-                id: id,
-                governor: content
+        case ("governor_height"):
+            if(content == "") {
+                return {
+                    id: id,
+                    governor_height: content
+                }
+            }else{
+                return {
+                    id: id,
+                    governor_height: parseFloat(content)
+                }
             }
+
     }
 }

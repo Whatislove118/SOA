@@ -5,6 +5,7 @@ import {PaginationList} from "../../paginationList/paginationList";
 import {countPage} from "../../Utils/countPage";
 import style from "../../paginationList/paginationList.scss"
 import {ALL, FILTER, SORT} from "../../Utils/modes";
+import {createJSON} from "../../Utils/createJSON";
 
 export const ContentPage = () => {
     const [mode, setMode] = useState("");
@@ -93,7 +94,7 @@ export const ContentPage = () => {
     useEffect(() => {
         setMode(FILTER);
         sendFilter();
-    }, [id, name, coordinate_x, coordinate_y, creationData, area, population, metersAboveSeaLevel, establishmentDate, climate,
+    }, [name, coordinate_x, coordinate_y, creationData, area, population, metersAboveSeaLevel, establishmentDate, climate,
         government, governor_height, governor_birthday])
 
     const getOneCity = () => {
@@ -130,7 +131,7 @@ export const ContentPage = () => {
     }
 
     const sendFilter = () => {
-        fetch(`http://localhost:8080/Lab1/city/?page=${currentPage}&pageSize=${perPage}${createURL()}`)
+        fetch(`http://localhost:8080/city/?page=${currentPage}&pageSize=${perPage}${createURL()}`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -147,10 +148,10 @@ export const ContentPage = () => {
     }
 
     const sendSort = () => {
-        let url = `http://localhost:8080/Lab1/city?page=${currentPage}&pageSize=${perPage}&sort&`
+        let url = `http://localhost:8080/city?page=${currentPage}&pageSize=${perPage}`
         for (let field in sortStructure) {
             if (sortStructure[field] === true) {
-                url += `${field}&`;
+                url += `&sort=${field}`;
             }
         }
         fetch(url)
@@ -193,14 +194,11 @@ export const ContentPage = () => {
 
     const deleteCity = (id) => {
         if (id !== "") {
-            fetch("http://localhost:8080/city",{
+            fetch(`http://localhost:8080/city/${id}`,{
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify({
-                    "id": parseInt(id)
-                })
+                }
             })
             .then(async (response) => {
                 if (
@@ -223,7 +221,7 @@ export const ContentPage = () => {
     const deleteByClimate = () => {
 
         if (climate != "") {
-            fetch(`http://localhost:8080/Lab1//delete/capital?climate=${climate}`, {
+            fetch(`http://localhost:8080/delete/city?climate=${climate}`, {
                 method: "DELETE"
             })
                 .then(async (response) => {
@@ -247,7 +245,7 @@ export const ContentPage = () => {
 
     const getWithHigherGovernment = () => {
         if (government != "") {
-            fetch(`localhost:8080/city/by/government/higher?government=${government}`)
+            fetch(`http://localhost:8080/city/by/government/higher?government=${government}`)
                 .then(async (response) => {
                     if (
                         Math.trunc(response.status / 100) === 4
@@ -256,12 +254,16 @@ export const ContentPage = () => {
                     ) {
                         toast.error(await response.text());
                     } else {
-                        toast.success("Удаленно");
+                        toast.success("Больше чем" + government);
+                        setContent(await response.json());
                     }
                 })
                 .catch((err) => {
+                    console.log(err)
                     toast.error("Сервис сейчас недоступен");
                 })
+        }else{
+            toast.error("Выберите government")
         }
         // .then(async (response) => {
         //     if (
@@ -288,7 +290,7 @@ export const ContentPage = () => {
 
     const getWithLowerGovernment = () => {
         if (government != "") {
-            fetch(`localhost:8080/city/by/government/lower?government=${government}`)
+            fetch(`http://localhost:8080/city/by/government/lower?government=${government}`)
                 .then(async (response) => {
                     if (
                         Math.trunc(response.status / 100) === 4
@@ -297,12 +299,14 @@ export const ContentPage = () => {
                     ) {
                         toast.error(await response.text());
                     } else {
-                        toast.success("Удаленно");
-                    }
+                        toast.success("Меньше чем " + government );
+                        setContent(await response.json());                    }
                 })
                 .catch((err) => {
                     toast.error("Сервис сейчас недоступен");
                 })
+        }else{
+            toast.error("Выберите government")
         }
     }
 
@@ -328,10 +332,7 @@ export const ContentPage = () => {
     }
 
     const createURL = () => {
-        let str ="?"
-        if (id !== ""){
-            str += `id=${id}`
-        }
+        let str ="&"
         if (name !== "") {
             str += `name=${name}&`
         } if (coordinate_x !== "") {
@@ -365,8 +366,8 @@ export const ContentPage = () => {
         let c = {
             name : name,
             coordinates : {
-                x : parseInt(coordinate_x),
-                y : parseFloat(coordinate_y)
+                x : coordinate_x,
+                y : coordinate_y
             },
             area : parseInt(area),
             population : parseInt(population),
@@ -408,7 +409,6 @@ export const ContentPage = () => {
         <div>
             <button onClick={() => create()}>Создать</button>
             <button onClick={() => clearForm()}>Очистить</button>
-            <button onClick={() => deleteCity()}>Удалить</button>
             <button onClick={() => deleteByClimate()}>delete by Climate</button>
             <button onClick={() => getWithHigherGovernment()}>Higher government</button>
             <button onClick={() => getWithLowerGovernment()}>Lower government</button>
@@ -440,7 +440,7 @@ export const ContentPage = () => {
                 <td><input type="text" value={area} onChange={(event) => setArea(event.target.value)}/></td>
                 <td><input type="text" value={population} onChange={(event) => setPopulation(event.target.value)}/></td>
                 <td><input type="text" value={metersAboveSeaLevel} onChange={(event) => setMASL(event.target.value)}/></td>
-                <td><input type="text" value={establishmentDate} onChange={(event) => setEstablishmentDate(event.target.value)}/></td>
+                <td><input type="date" value={establishmentDate} onChange={(event) => setEstablishmentDate(event.target.value)}/></td>
                 <td><select value={climate} onChange={(event) => setClimate(event.target.value)}>
                     <option value=""> </option>
                     <option value="MONSOON">MONSOON</option>
@@ -456,7 +456,7 @@ export const ContentPage = () => {
                     <option value="TOTALITARIANISM">TOTALITARIANISM</option>
                 </select></td>
                 <td><input type="text" value={governor_height} onChange={(event) => setGovernorHeight(event.target.value)}/></td>
-                <td><input type="text" value={governor_birthday} onChange={(event) => setGovernorBirthday(event.target.value)}/></td>
+                <td><input type="datetime-local" value={governor_birthday} onChange={(event) => setGovernorBirthday(event.target.value)}/></td>
                 <td> </td>
             </tr>
 

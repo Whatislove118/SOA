@@ -22,17 +22,23 @@ public class Coordinates {
 
 
     public Coordinates(Long x, Double y) throws ValidationException {
-        this.setX(x);
-        this.setY(y);
+        if (y == null){
+            this.setX(x);
+        }else if (x == null){
+            this.setY(y);
+        }else {
+            this.setX(x);
+            this.setY(y);
+        }
 
     }
 
     public Coordinates(JSONObject json) throws ValidationException{
         try {
-            this.setX((Long) json.get("x"));
-            this.setY((Double) json.get("y"));
+            this.setX(Long.parseLong((String) json.get("x")));
+            this.setY(Double.parseDouble((String)json.get("y")));
         }catch (ClassCastException e){
-            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным", 400);
+            throw new ValidationException("Ошибка сигнатуры запроса сущности Coordinates. Типы переменных не соответсвтуеют заданным", 400);
         }
     }
 

@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,17 +23,17 @@ import java.util.stream.Collectors;
 public class Utils {
 
 
-    public static Gson gson(){
-        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new JsonSerializer<ZonedDateTime>() {
-            @Override
-            public JsonElement serialize(ZonedDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-                JsonObject json = new JsonObject();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-                json.addProperty("birthday", src.format(formatter));
-                return json;
-            }
-        }).create();
-    }
+//    public static Gson gson(){
+//        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new JsonSerializer<ZonedDateTime>() {
+//            @Override
+//            public JsonElement serialize(ZonedDateTime src, Type typeOfSrc, JsonSerializationContext context) {
+//                JsonObject json = new JsonObject();
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+//                json.addProperty("birthday", src.format(formatter));
+//                return json;
+//            }
+//        }).create();
+//    }
 
     public static ArrayList<String> fillCityParamsList(){
         ArrayList<String> result = new ArrayList<>();
@@ -100,7 +101,8 @@ public class Utils {
 
     public static void writeJSONObjectToResponse(Object object, HttpServletResponse resp) {
         try {
-            String a = gson().toJson(object);
+            Gson gson = new Gson();
+            String a = gson.toJson(object);
             PrintWriter writer = resp.getWriter();
             writer.write(a);
             resp.setStatus(200);
@@ -112,9 +114,10 @@ public class Utils {
     public static void writeJSONErrorToResponse(HttpServletResponse resp, String message, int status) {
         PrintWriter writer = null;
         try {
+            Gson gson = new Gson();
             writer = resp.getWriter();
             ErrorObject err = new ErrorObject(message);
-            String json = gson().toJson(err);
+            String json = gson.toJson(err);
             writer.write(json);
             resp.setStatus(status);
         } catch (IOException e) {
@@ -154,7 +157,13 @@ public class Utils {
                         break;
                     case "establishmentDate":
                         list = (ArrayList<City>) list.stream().filter(city -> {
-                            return city.getEstablishmentDate() == Date.from(Instant.parse(value)).toInstant().getNano();
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
+                            try {
+                                return city.getEstablishmentDate().equals(formatter.parse(value));
+                            } catch (java.text.ParseException e) {
+                                throw new IllegalArgumentException();
+                            }
                         }).collect(Collectors.toList());
                         break;
                     case "coordinates_x":

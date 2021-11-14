@@ -41,6 +41,7 @@ public class CityController extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         try{
+            System.out.println("PUT");
             JSONObject json = Utils.getJSONFromBody(req);
             CityService.update(json);
         }catch (ValidationException e){

@@ -16,12 +16,9 @@ export const Content = ({content, onClick, checkEnter, sendUpdate}) => {
                 <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "coordinate_x", content)} props={item.coordinates.x} /></td>
                 <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "coordinate_y", content)} props={item.coordinates.y} /></td>
                 <td>{new Date(
-                    item.creationDate.date.year,
-                    item.creationDate.date.month-1,
-                    item.creationDate.date.day,
-                    item.creationDate.time.hour,
-                    item.creationDate.time.minute,
-                    item.creationDate.time.second,
+                    item.creationDate.year,
+                    item.creationDate.month-1,
+                    item.creationDate.day
                 ).toString()}</td>
                 <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "area", content)} props={item.area} /></td>
                 <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "population", content)} props={item.population} /></td>
@@ -38,7 +35,16 @@ export const Content = ({content, onClick, checkEnter, sendUpdate}) => {
                     sendUpdate={(content) => sendUpdate(item.id, "government", content)}
                 /></td>
                 <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "governor_height", content)} props={item.governor.height} /></td>
-                <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "governor_birthday", content)} props={item.governor.birthday} /></td>
+                {/*<td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "governor_birthday", content)} props={item.governor.birthday} /></td>*/}
+                <td>{new Date(
+                    item.governor.birthday.dateTime.date.year,
+                    item.governor.birthday.dateTime.date.month-1,
+                    item.governor.birthday.dateTime.date.day,
+                    item.governor.birthday.dateTime.time.hour,
+                    item.governor.birthday.dateTime.time.minute,
+                    item.governor.birthday.dateTime.time.second,
+                ).toString()}</td>
+                {/*<td>{item.governor.birthday.birthday}</td>*/}
                 <button onClick={(event) => onClick(event.target.value)} value={item.id}>Удалить</button>
             </tr>)
     );

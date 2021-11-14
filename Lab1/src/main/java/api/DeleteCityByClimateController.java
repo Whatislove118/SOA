@@ -14,7 +14,7 @@ import services.Utils;
 
 import java.io.IOException;
 
-@WebServlet("/delete/coordinates")
+@WebServlet("/delete/city/*")
 public class DeleteCityByClimateController extends HttpServlet {
 
 
