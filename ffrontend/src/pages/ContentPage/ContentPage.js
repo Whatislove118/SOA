@@ -59,6 +59,7 @@ export const ContentPage = () => {
     const getAll = () => {
         fetch(`http://localhost:8080/city`)
             .then(res => res.json())
+            .then(status)
             .then(
                 (result) => {
                     setContent(result)
@@ -66,7 +67,9 @@ export const ContentPage = () => {
                     countPage(pages, pagesCount, currentPage);
                     // getPage();
                 }
-            )
+            ).catch(error => {
+            console.log('error, sry')
+        })
     }
 
     useEffect(() => {
@@ -83,13 +86,16 @@ export const ContentPage = () => {
         }
         fetch(url)
             .then(res => res.json())
+            .then(status)
             .then(
                 (result) => {
                     setContent(result);
                     countPage(pages, pagesCount, currentPage);
                     // getPage();
                 }
-            )
+            ).catch(error => {
+            console.log('error, sry')
+        })
     }, [sortStructure])
 
     useEffect(() => {
@@ -100,11 +106,10 @@ export const ContentPage = () => {
 
 
     const createURL = () => {
-        let str = "";
+        let str ="?"
         if (id !== ""){
-            str += `/${id}`
+            str += `id=${id}`
         }
-        str = str + "?"
         if (name !== "") {
             str += `name=${name}&`
         } if (coordinate_x !== "") {
@@ -136,12 +141,21 @@ export const ContentPage = () => {
     const sendFilter = () => {
         fetch(`http://localhost:8080/city${createURL()}`)
             .then(res => res.json())
+            .then(status)
             .then(
                 (result) => {
                     setContent(result)
-                    // getPage();
                 }
-            )
+            ).catch(error => {
+                console.log('error, sry')
+        })
+    }
+
+    function status(res) {
+        if (!res.ok) {
+            return Promise.reject()
+        }
+        return res;
     }
 
     //todo return

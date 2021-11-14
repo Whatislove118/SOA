@@ -72,7 +72,7 @@ public class City {
         }catch (ClassCastException e){
             System.out.println(1);
             e.printStackTrace();
-            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным "+e, 400);
+            throw new ValidationException("Ошибка сигнатуры запроса. Типы переменных не соответсвтуеют заданным1", 400);
         }
     }
 
