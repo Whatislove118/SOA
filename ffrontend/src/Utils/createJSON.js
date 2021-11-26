@@ -7,7 +7,9 @@ export const createJSON = (id, field, content) => {
                 name: content
             }
         case ("coordinate_x"):
-            if(content == ""){
+            console.log(parseInt(content))
+            if(content == "" || isNaN(parseInt(content))){
+                content = ""
                 return {
                     id: id,
                     coordinate_x: content
@@ -19,7 +21,8 @@ export const createJSON = (id, field, content) => {
                 }
             }
         case ("coordinate_y"):
-            if(content == "") {
+            if(content == "" || isNaN(parseFloat(content))) {
+                content = ""
                 return {
                     id: id,
                     coordinate_x: content
@@ -31,7 +34,8 @@ export const createJSON = (id, field, content) => {
                 }
             }
         case ("area"):
-            if(content == "") {
+            if(content == "" || isNaN(parseInt(content))) {
+                content = ""
                 return {
                     id: id,
                     area: content
@@ -43,7 +47,8 @@ export const createJSON = (id, field, content) => {
                 }
             }
         case ("population"):
-            if(content == "") {
+            if(content == "" || isNaN(parseInt(content))) {
+                content = ""
                 return {
                     id: id,
                     population: content
@@ -55,34 +60,29 @@ export const createJSON = (id, field, content) => {
                 }
             }
         case ("metersAboveSeaLevel"):
-            if(content == "") {
+            if(content == "" || isNaN(parseInt(content))) {
+                content = ""
                 return {
                     id: id,
                     metersAboveSeaLevel: content
                 }
             }else{
-                return {
-                    id: id,
-                    metersAboveSeaLevel: parseInt(content)
-                }
+                    return {
+                        id: id,
+                        metersAboveSeaLevel: parseInt(content)
+                    }
             }
         case ("establishmentDate"):
-            if(content == "") {
                 return {
                     id: id,
                     establishmentDate: content
                 }
-            }else{
-                return {
-                    id: id,
-                    establishmentDate: parseFloat(content)
-                }
-            }
-        case (""):
-            return {
-                id: id,
-                capital: Boolean(content)
-            }
+
+        // case (""):
+        //     return {
+        //         id: id,
+        //         capital: Boolean(content)
+        //     }
         case ("government"):
                 return {
                     id: id,
@@ -94,7 +94,8 @@ export const createJSON = (id, field, content) => {
                 climate: content
             }
         case ("governor_height"):
-            if(content == "") {
+            if(content == "" || isNaN(parseFloat(content))) {
+                content = ""
                 return {
                     id: id,
                     governor_height: content

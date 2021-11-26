@@ -6,6 +6,12 @@ import {countPage} from "../../Utils/countPage";
 import style from "../../paginationList/paginationList.scss"
 import {ALL, FILTER, SORT} from "../../Utils/modes";
 import {createJSON} from "../../Utils/createJSON";
+import {Button} from "react-bootstrap";
+
+
+
+const base_url = "http://localhost:8080/"
+const api_url = `${base_url}city`
 
 export const ContentPage = () => {
     const [mode, setMode] = useState("");
@@ -98,7 +104,7 @@ export const ContentPage = () => {
         government, governor_height, governor_birthday])
 
     const getOneCity = () => {
-        fetch(`http://localhost:8080/city/${id}`)
+        fetch(`${api_url}/${id}`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -117,7 +123,7 @@ export const ContentPage = () => {
     }
 
     const getAll = () => {
-        fetch(`http://localhost:8080/city?page=${currentPage}&pageSize=${perPage}`)
+        fetch(`${api_url}?page=${currentPage}&pageSize=${perPage}`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -131,7 +137,7 @@ export const ContentPage = () => {
     }
 
     const sendFilter = () => {
-        fetch(`http://localhost:8080/city/?page=${currentPage}&pageSize=${perPage}${createURL()}`)
+        fetch(`${api_url}?page=${currentPage}&pageSize=${perPage}${createURL()}`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -148,7 +154,7 @@ export const ContentPage = () => {
     }
 
     const sendSort = () => {
-        let url = `http://localhost:8080/city?page=${currentPage}&pageSize=${perPage}`
+        let url = `${api_url}?page=${currentPage}&pageSize=${perPage}`
         for (let field in sortStructure) {
             if (sortStructure[field] === true) {
                 url += `&sort=${field}`;
@@ -168,7 +174,7 @@ export const ContentPage = () => {
     }
 
     const create = () => {
-        fetch("http://localhost:8080/city/", {
+        fetch(`${api_url}/`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
@@ -181,7 +187,7 @@ export const ContentPage = () => {
                     || Math.trunc(response.status / 100) === 5
                     || response.status === 429
                 ) {
-                    toast.error(await response.text());
+                    toast.error(await response.json().then(data => data.message));
                 } else {
                     toast.success("Созданно");
                     sendFilter();
@@ -194,7 +200,7 @@ export const ContentPage = () => {
 
     const deleteCity = (id) => {
         if (id !== "") {
-            fetch(`http://localhost:8080/city/${id}`,{
+            fetch(`${api_url}/${id}`,{
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -221,7 +227,7 @@ export const ContentPage = () => {
     const deleteByClimate = () => {
 
         if (climate != "") {
-            fetch(`http://localhost:8080/delete/city?climate=${climate}`, {
+            fetch(`${base_url}delete/city?climate=${climate}`, {
                 method: "DELETE"
             })
                 .then(async (response) => {
@@ -239,13 +245,13 @@ export const ContentPage = () => {
                     toast.error("Сервис сейчас недоступен");
                 })
         } else {
-            toast.error("Поле capital незаданно");
+            toast.error("Поле climate незаданно");
         }
     }
 
     const getWithHigherGovernment = () => {
         if (government != "") {
-            fetch(`http://localhost:8080/city/by/government/higher?government=${government}`)
+            fetch(`${api_url}/by/government/higher?government=${government}`)
                 .then(async (response) => {
                     if (
                         Math.trunc(response.status / 100) === 4
@@ -290,7 +296,7 @@ export const ContentPage = () => {
 
     const getWithLowerGovernment = () => {
         if (government != "") {
-            fetch(`http://localhost:8080/city/by/government/lower?government=${government}`)
+            fetch(`${api_url}/by/government/lower?government=${government}`)
                 .then(async (response) => {
                     if (
                         Math.trunc(response.status / 100) === 4
@@ -311,7 +317,7 @@ export const ContentPage = () => {
     }
 
     const sendUpdate = (id, field, content) => {
-        fetch("http://localhost:8080/city/", {
+        fetch(`${api_url}`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
@@ -324,7 +330,7 @@ export const ContentPage = () => {
                     || Math.trunc(response.status / 100) === 5
                     || response.status === 429
                 ) {
-                    toast.error(await response.text());
+                    toast.error(await response.json().then(data => data.message));
                 } else {
                     toast.success("Изменено");
                 }
@@ -366,8 +372,8 @@ export const ContentPage = () => {
         let c = {
             name : name,
             coordinates : {
-                x : coordinate_x,
-                y : coordinate_y
+                x : parseInt(coordinate_x),
+                y : parseFloat(coordinate_y)
             },
             area : parseInt(area),
             population : parseInt(population),
@@ -407,8 +413,8 @@ export const ContentPage = () => {
 
     return (
         <div>
-            <button onClick={() => create()}>Создать</button>
-            <button onClick={() => clearForm()}>Очистить</button>
+            <Button variant="primary" onClick={() => create()}>Создать</Button>
+            <Button onClick={() => clearForm()}>Очистить</Button>
             <button onClick={() => deleteByClimate()}>delete by Climate</button>
             <button onClick={() => getWithHigherGovernment()}>Higher government</button>
             <button onClick={() => getWithLowerGovernment()}>Lower government</button>

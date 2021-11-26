@@ -7,9 +7,9 @@ export const StartPage = () => {
             <div>
                 <h1>Лабораторная работа #1</h1>
                 <h3>Почикалин В.О.</h3>
-                <h4>Вариант 2007</h4>
+                <h4>Вариант <strong>2007</strong></h4>
             </div>
-            <img src={"http://pics.livejournal.com/tumbler73/pic/0000y0xy"} width={'1000px'} height={'1000px'}/>
+            <img src={"http://cs416923.vk.me/v416923791/57ad/jNvlqxNf-O4.jpg"} width={'1000px'} height={'1000px'}/>
         </div>
     );
 };
