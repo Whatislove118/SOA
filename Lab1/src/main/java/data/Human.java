@@ -22,18 +22,10 @@ public class Human {
 
     private java.time.ZonedDateTime birthday;
 
-    public Human(Double height, ZonedDateTime birthday) throws ValidationException {
-        this.setHeight(height);
-        //this.setBirthday((Date) birthday);
-    }
 
     public Human(JSONObject json) throws ValidationException{
-        try {
-            this.setHeight((Double) json.get("height"));
-            this.setBirthday((String)json.get("birthday"));
-        }catch (ClassCastException e){
-            throw new ValidationException("Ошибка сигнатуры запроса сущности Governor. Типы переменных не соответсвтуеют заданным", 400);
-        }
+            this.setHeight(json.get("height"));
+            this.setBirthday(json.get("birthday"));
     }
 
 
@@ -53,17 +45,20 @@ public class Human {
         return height;
     }
 
-    public void setHeight(Double height) throws ValidationException {
+    public void setHeight(Object height) throws ValidationException {
         try {
             if (height == null){
                 throw new ValidationException("поле height должно быть представлено в запросе", 400);
             }
-            if (height <= 0) {
-                throw new ValidationException("поле height не соблюдает условию валидации", 400);
+            Double new_height = (Double) height;
+            if (new_height <= 0) {
+                throw new ValidationException("поле height не соблюдает условию height > 0", 400);
             }
-            this.height = height;
+            this.height = new_height;
         }catch (NumberFormatException e){
             throw new ValidationException("поле height должно быть числом", 400);
+        }catch (ClassCastException e){
+            throw new ValidationException("Параметр height должен быть Double", 400);
         }
     }
 
@@ -71,15 +66,17 @@ public class Human {
         return birthday.toLocalDateTime();
     }
 
-    public void setBirthday(String birthday) throws ValidationException {
+    public void setBirthday(Object birthday) throws ValidationException {
+        try {
         if (birthday == null){
             throw new ValidationException("поле birthday должно быть представлено в запросе", 400);
         }
-        try {
-            LocalDateTime dt = LocalDateTime.parse(birthday);
+            LocalDateTime dt = LocalDateTime.parse((CharSequence) birthday);
             this.birthday = dt.atZone(ZoneId.systemDefault());
         }catch (DateTimeParseException e){
-            throw new ValidationException("Неверный формат даты", 400);
+            throw new ValidationException("Неверный формат даты birthday", 400);
+        }catch (ClassCastException e){
+            throw new ValidationException("Неверный тип параметра birthday", 400);
         }
     }
 }

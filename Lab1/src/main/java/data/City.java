@@ -63,15 +63,15 @@ public class City {
             this.setName((String) json.get("name"));
             Coordinates coordinates = new Coordinates((JSONObject) json.get("coordinates"));
             this.setCoordinates(coordinates);
-            this.setArea((int) (long) json.get("area"));
-            this.setPopulation((int) (long) json.get("population"));
-            this.setMetersAboveSeaLevel((int) (long) json.get("metersAboveSeaLevel"));
+            this.setArea(json.get("area"));
+            this.setPopulation(json.get("population"));
+            this.setMetersAboveSeaLevel(json.get("metersAboveSeaLevel"));
             this.setEstablishmentDate((String) json.get("establishmentDate"));
             this.setClimate((String) json.get("climate"));
             this.setGovernment((String) json.get("government"));
             Human human = new Human((JSONObject) json.get("governor"));
             this.setGovernor(human);
-        }catch (ClassCastException e){
+        }catch (ClassCastException | NumberFormatException | NullPointerException e){
             System.out.println(1);
             e.printStackTrace();
             throw new ValidationException("Ошибка сигнатуры запроса сущности City. Типы переменных не соответсвтуеют заданным", 400);
@@ -84,10 +84,8 @@ public class City {
     }
 
     public void setName(String name) throws ValidationException {
-        if (name == null){
-            throw new ValidationException("поле name не представлено в запросе", 400);
-        } if(name.equals("")){
-            throw new ValidationException("поле name не соблюдает условию валидации", 400);
+        if (name == null || name.equals("")){
+            throw new ValidationException("Параметр name должно быть представлено в запросе", 400);
         }
         this.name = name;
     }
@@ -118,8 +116,33 @@ public class City {
         this.area = area;
     }
 
+
+    public void setArea(Object area) throws ValidationException{
+        try {
+            int new_area = (int) (long) area;
+            if (new_area < 0) {
+                throw new ValidationException("поле area не соблюдает условию валидации area >= 0", 400);
+            }
+            this.area = new_area;
+        }catch (ClassCastException e){
+            throw new ValidationException("Параметр area должен быть Integer", 400);
+        }
+    }
+
     public Integer getPopulation() {
         return population;
+    }
+
+    public void setPopulation(Object population) throws ValidationException {
+        try {
+            int new_population = (int) (long) population;
+            if (new_population < 0) {
+                throw new ValidationException("поле population не соблюдает условию валидации population >= 0", 400);
+            }
+            this.population = new_population;
+        }catch (ClassCastException e){
+            throw new ValidationException("Параметр population должен быть Integer", 400);
+        }
     }
 
     public void setPopulation(Integer population) throws ValidationException {
@@ -139,6 +162,15 @@ public class City {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setMetersAboveSeaLevel(Object metersAboveSeaLevel) throws ValidationException {
+        try {
+            int new_smasl = (int) (long) metersAboveSeaLevel;
+            this.metersAboveSeaLevel = new_smasl;
+        }catch (ClassCastException e){
+            throw new ValidationException("Параметр metersAboveSeaLevel должен быть Integer", 400);
+        }
     }
 
     public void setMetersAboveSeaLevel(Integer metersAboveSeaLevel) throws ValidationException {

@@ -34,46 +34,24 @@ public class CityService {
         try {
             City city = findById((Long) json.get("id"));
             if (json.get("name") != null){
-//                if (json.get("name").equals("")){
-//                    city.setName(null);
-//                }
                 city.setName((String) json.get("name"));
             }
             if (json.get("coordinate_x") != null){
-//                if (json.get("coordinates_x").equals("")){
-//                    city.getCoordinates().setX(null);
-//                }
-                System.out.println(json.get("coordinate_x"));
-                city.getCoordinates().setX((Long)json.get("coordinate_x"));
+                city.getCoordinates().setX(json.get("coordinate_x"));
             }
             if (json.get("coordinate_y") != null){
-//                if (json.get("coordinates_y").equals("")){
-//                    city.getCoordinates().setY(null);
-//                }
-               city.getCoordinates().setY((Double)json.get("coordinate_y"));
+               city.getCoordinates().setY(json.get("coordinate_y"));
             }
             if (json.get("area") != null){
-//                if (json.get("area").equals("")){
-//                    city.setArea(null);
-//                }
-                city.setArea((int) (long) json.get("area"));
+                city.setArea(json.get("area"));
             }
             if (json.get("population") != null){
-//                if (json.get("population").equals("")){
-//                    city.setPopulation(null);
-//                }
-                city.setPopulation((int) (long) json.get("population"));
+                city.setPopulation(json.get("population"));
             }
             if (json.get("metersAboveSeaLevel") != null){
-//                if (json.get("metersAboveSeaLevel").equals("")){
-//                    city.setMetersAboveSeaLevel(null);
-//                }
-                city.setMetersAboveSeaLevel((int) (long) json.get("metersAboveSeaLevel"));
+                city.setMetersAboveSeaLevel(json.get("metersAboveSeaLevel"));
             }
             if (json.get("establishmentDate") != null){
-//                if (json.get("establishmentDate").equals("")){
-//                    city.setEstablishmentDate(null);
-//                }
                 city.setEstablishmentDate((String) json.get("establishmentDate"));
             }
             if (json.get("climate") != null){
@@ -83,7 +61,7 @@ public class CityService {
                 city.setGovernment((String) json.get("government"));
             }
             if (json.get("governor_height") != null){
-                city.getGovernor().setHeight((Double)json.get("governor_height"));
+                city.getGovernor().setHeight(json.get("governor_height"));
             }
             CityDAO.update(city);
         }catch (ClassCastException e){

@@ -34,12 +34,8 @@ public class Coordinates {
     }
 
     public Coordinates(JSONObject json) throws ValidationException{
-        try {
-            this.setX(Long.parseLong((String) json.get("x")));
-            this.setY(Double.parseDouble((String)json.get("y")));
-        }catch (ClassCastException e){
-            throw new ValidationException("Ошибка сигнатуры запроса сущности Coordinates. Типы переменных не соответсвтуеют заданным", 400);
-        }
+            this.setX(json.get("x"));
+            this.setY(json.get("y"));
     }
 
 
@@ -48,6 +44,41 @@ public class Coordinates {
 
     public long getX() {
         return x;
+    }
+
+
+    public void setX(Object x) throws ValidationException {
+        try {
+            if (x == null) {
+                throw new ValidationException("поле coordinates_x должно быть представлено в запросе", 400);
+            }
+            long new_x = (Long) x;
+            if (new_x > 807) {
+                throw new ValidationException("поле coordinates_x не соблюдает условию валидации x < 807", 400);
+            }
+            this.x = new_x;
+        }catch (NumberFormatException | ClassCastException e){
+            e.printStackTrace();
+            throw new ValidationException("Параметр coordinates_x должен быть Long", 400);
+        }
+
+    }
+
+
+    public void setY(Object y) throws ValidationException {
+        try {
+            if (y == null){
+                throw new ValidationException("поле coordinates_y должно быть представлено в запросе", 400);
+            }
+            double new_y = (Double) y;
+            if (new_y < -776){
+                throw new ValidationException("поле coordinates_y не соблюдает условию валидации y > -776", 400);
+            }
+            this.y = new_y;
+        }catch (NumberFormatException | ClassCastException e){
+            throw new ValidationException("Параметр coordinates_y должен быть Long", 400);
+        }
+
     }
 
     public void setX(Long x) throws ValidationException {

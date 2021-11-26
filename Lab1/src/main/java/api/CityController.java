@@ -28,8 +28,8 @@ public class CityController extends HttpServlet {
         resp.setContentType("application/json");
         try {
             JSONObject json = Utils.getJSONFromBody(req);
-            City coordinates = new City(json);
-            CityService.save(coordinates);
+            City city = new City(json);
+            CityService.save(city);
             resp.setStatus(201);
         }catch (ValidationException e) {
             Utils.writeJSONErrorToResponse(resp, e.getMessage(), e.getStatus());
@@ -41,7 +41,6 @@ public class CityController extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         try{
-            System.out.println("PUT");
             JSONObject json = Utils.getJSONFromBody(req);
             CityService.update(json);
         }catch (ValidationException e){

@@ -22,7 +22,9 @@ public class HibernateSessionFactoryUtil {
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());
             }catch (Exception e){
+                e.printStackTrace();
                 throw new RuntimeException("Подключение к базе данных отсутсвтует");
+              
             }
         }
         return sessionFactory;
