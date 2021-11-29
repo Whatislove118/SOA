@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -157,10 +158,11 @@ public class Utils {
                         break;
                     case "establishmentDate":
                         list = (ArrayList<City>) list.stream().filter(city -> {
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-d", Locale.ENGLISH);
                             try {
-                                return city.getEstablishmentDate().equals(formatter.parse(value));
+                                Date old_date =  formatter.parse(city.getEstablishmentDate().toString());
+                                Date new_date = formatter.parse(value);
+                                return old_date.equals(new_date);
                             } catch (java.text.ParseException e) {
                                 throw new IllegalArgumentException();
                             }
@@ -206,10 +208,14 @@ public class Utils {
                         }).collect(Collectors.toList());
                         break;
                     case "governor_birthday":
+//                        System.out.println("hello ");
                         list = (ArrayList<City>) list.stream().filter(city -> {
                             Human governor = city.getGovernor();
+                            String new_value = value.replace("T", " ");
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                            LocalDateTime respDate = LocalDateTime.parse(new_value, formatter);
 //                            return governor.getBirthday().equals(value);
-                            return governor.getBirthday().equals(value);
+                            return governor.getBirthday().equals(respDate);
                         }).collect(Collectors.toList());
                         break;
                     case "sort":
@@ -219,6 +225,7 @@ public class Utils {
                         throw new IllegalArgumentException();
                 }
             }catch (ClassCastException | IllegalArgumentException e){
+                e.printStackTrace();
                 list.clear();
                 return list;
             }
