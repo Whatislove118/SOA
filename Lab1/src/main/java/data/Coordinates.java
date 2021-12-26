@@ -1,5 +1,6 @@
 package data;
 
+import exceptions.ValidationArrayException;
 import exceptions.ValidationException;
 import org.json.simple.JSONObject;
 
@@ -8,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.ArrayList;
 
 
 @Entity
@@ -33,9 +35,22 @@ public class Coordinates {
 
     }
 
-    public Coordinates(JSONObject json) throws ValidationException{
+    public Coordinates(JSONObject json) throws ValidationException, ValidationArrayException {
+        ArrayList<ValidationException> err_list = new ArrayList<>();
+        try {
             this.setX(json.get("x"));
+        }catch (ValidationException e){
+            err_list.add(e);
+        }
+        try {
             this.setY(json.get("y"));
+        }catch (ValidationException e){
+            err_list.add(e);
+        }
+
+        if (err_list.size() != 0){
+            throw new ValidationArrayException(err_list, 403);
+        }
     }
 
 
@@ -50,7 +65,7 @@ public class Coordinates {
     public void setX(Object x) throws ValidationException {
         try {
             if (x == null) {
-                throw new ValidationException("поле coordinates_x должно быть представлено в запросе", 400);
+                throw new ValidationException("Параметр coordinates_x должен быть Long", 400);
             }
             long new_x = (Long) x;
             if (new_x > 807) {
@@ -68,7 +83,7 @@ public class Coordinates {
     public void setY(Object y) throws ValidationException {
         try {
             if (y == null){
-                throw new ValidationException("поле coordinates_y должно быть представлено в запросе", 400);
+                throw new ValidationException("Параметр coordinates_y должен быть Double", 400);
             }
             double new_y = (Double) y;
             if (new_y < -776){
@@ -76,7 +91,7 @@ public class Coordinates {
             }
             this.y = new_y;
         }catch (NumberFormatException | ClassCastException e){
-            throw new ValidationException("Параметр coordinates_y должен быть Long", 400);
+            throw new ValidationException("Параметр coordinates_y должен быть Double", 400);
         }
 
     }

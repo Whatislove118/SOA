@@ -31,6 +31,7 @@ public class CityService {
 
     public static void update(JSONObject json) throws ValidationException {
         System.out.println(json.toJSONString());
+
         try {
             City city = findById((Long) json.get("id"));
             if (json.get("name") != null){

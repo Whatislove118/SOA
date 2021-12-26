@@ -11,7 +11,7 @@ import {Button} from "react-bootstrap";
 
 
 const base_url = "http://localhost:8080/"
-const api_url = `${base_url}city`
+const api_url = `${base_url}cities`
 
 export const ContentPage = () => {
     const [mode, setMode] = useState("");
@@ -123,7 +123,7 @@ export const ContentPage = () => {
     }
 
     const getAll = () => {
-        fetch(`${api_url}?page=${currentPage}&pageSize=${perPage}`)
+        fetch(`${api_url}?page=${currentPage}&size=${perPage}`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -137,7 +137,7 @@ export const ContentPage = () => {
     }
 
     const sendFilter = () => {
-        fetch(`${api_url}?page=${currentPage}&pageSize=${perPage}${createURL()}`)
+        fetch(`${api_url}?page=${currentPage}&size=${perPage}${createURL()}`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -154,7 +154,7 @@ export const ContentPage = () => {
     }
 
     const sendSort = () => {
-        let url = `${api_url}?page=${currentPage}&pageSize=${perPage}`
+        let url = `${api_url}?page=${currentPage}&size=${perPage}`
         for (let field in sortStructure) {
             if (sortStructure[field] === true) {
                 url += `&sort=${field}`;
@@ -187,6 +187,12 @@ export const ContentPage = () => {
                     || Math.trunc(response.status / 100) === 5
                     || response.status === 429
                 ) {
+                    let a = await response.json().then(data => data);
+                    console.log(a);
+                    a.map(err => {
+                        toast.error(err.detailMessage)
+                    })
+
                     toast.error(await response.json().then(data => data.message));
                 } else {
                     toast.success("Созданно");
@@ -194,7 +200,7 @@ export const ContentPage = () => {
                 }
             })
             .catch((err) => {
-                toast.error("Сервис сейчас недоступен");
+                //toast.error("Сервис сейчас недоступен");
             })
     }
 
@@ -227,7 +233,7 @@ export const ContentPage = () => {
     const deleteByClimate = () => {
 
         if (climate != "") {
-            fetch(`${base_url}delete/city?climate=${climate}`, {
+            fetch(`${base_url}delete/by?climate=${climate}`, {
                 method: "DELETE"
             })
                 .then(async (response) => {

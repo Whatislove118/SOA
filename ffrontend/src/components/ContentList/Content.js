@@ -37,12 +37,7 @@ export const Content = ({content, onClick, checkEnter, sendUpdate}) => {
                 <td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "governor_height", content)} props={item.governor.height} /></td>
                 {/*<td><CellInput checkEnter={(e, content) => checkEnter(e, item.id, "governor_birthday", content)} props={item.governor.birthday} /></td>*/}
                 <td>{new Date(
-                    item.governor.birthday.dateTime.date.year,
-                    item.governor.birthday.dateTime.date.month-1,
-                    item.governor.birthday.dateTime.date.day,
-                    item.governor.birthday.dateTime.time.hour,
-                    item.governor.birthday.dateTime.time.minute,
-                    item.governor.birthday.dateTime.time.second,
+                    item.governor.birthday.date
                 ).toString()}</td>
                 {/*<td>{item.governor.birthday.birthday}</td>*/}
                 <button onClick={(event) => onClick(event.target.value)} value={item.id}>Удалить</button>

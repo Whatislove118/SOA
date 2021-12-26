@@ -2,6 +2,7 @@ package api;
 
 import data.City;
 import data.Resp;
+import exceptions.ValidationArrayException;
 import exceptions.ValidationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -33,6 +34,8 @@ public class CityController extends HttpServlet {
             resp.setStatus(201);
         }catch (ValidationException e) {
             Utils.writeJSONErrorToResponse(resp, e.getMessage(), e.getStatus());
+        }catch (ValidationArrayException e){
+            Utils.writeJSONErrorObjectsToResponse(resp, e.list);
         }
     }
 

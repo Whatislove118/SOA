@@ -1,5 +1,6 @@
 package data;
 
+import exceptions.ValidationArrayException;
 import exceptions.ValidationException;
 import org.json.simple.JSONObject;
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -26,6 +28,7 @@ public class City {
     private Coordinates coordinates; //Поле не может быть null
 
     private final java.time.LocalDate creationDate = LocalDate.now(); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+
 
     private Integer area; //Значение поля должно быть больше 0, Поле не может быть null
 
@@ -54,25 +57,68 @@ public class City {
         this.setGovernor(governor);
     }
 
+
     public City() {
 
     }
 
-    public City(JSONObject json) throws ValidationException{
+
+
+    public City(JSONObject json) throws ValidationException, ValidationArrayException {
+        ArrayList<ValidationException> err_list = new ArrayList<>();
         try {
-            this.setName((String) json.get("name"));
-            Coordinates coordinates = new Coordinates((JSONObject) json.get("coordinates"));
-            this.setCoordinates(coordinates);
-            this.setArea(json.get("area"));
-            this.setPopulation(json.get("population"));
-            this.setMetersAboveSeaLevel(json.get("metersAboveSeaLevel"));
-            this.setEstablishmentDate((String) json.get("establishmentDate"));
-            this.setClimate((String) json.get("climate"));
-            this.setGovernment((String) json.get("government"));
-            Human human = new Human((JSONObject) json.get("governor"));
-            this.setGovernor(human);
+            try {
+                this.setName((String) json.get("name"));
+            }catch (ValidationException e){
+                System.out.println("name error");
+                err_list.add(e);
+            }
+            try {
+                Coordinates coordinates = new Coordinates((JSONObject) json.get("coordinates"));
+                this.setCoordinates(coordinates);
+            }catch (ValidationArrayException e){
+                err_list.addAll(e.list);
+            }
+            try {
+                this.setArea(json.get("area"));
+            }catch (ValidationException e){
+                err_list.add(e);
+            }
+            try {
+                this.setPopulation(json.get("population"));
+            }catch (ValidationException e){
+                err_list.add(e);
+            }
+            try {
+                this.setMetersAboveSeaLevel(json.get("metersAboveSeaLevel"));
+            }catch (ValidationException e){
+                err_list.add(e);
+            }
+            try {
+                this.setEstablishmentDate((String) json.get("establishmentDate"));
+            }catch (ValidationException e){
+                err_list.add(e);
+            }
+            try {
+                this.setClimate((String) json.get("climate"));
+            }catch (ValidationException e){
+                err_list.add(e);
+            }
+            try {
+                this.setGovernment((String) json.get("government"));
+            }catch (ValidationException e){
+                err_list.add(e);
+            }
+            try {
+                Human human = new Human((JSONObject) json.get("governor"));
+                this.setGovernor(human);
+            }catch (ValidationArrayException e){
+                err_list.addAll(e.list);
+            }
+            if (err_list.size() != 0) {
+                throw new ValidationArrayException(err_list, 403);
+            }
         }catch (ClassCastException | NumberFormatException | NullPointerException e){
-            System.out.println(1);
             e.printStackTrace();
             throw new ValidationException("Ошибка сигнатуры запроса сущности City. Типы переменных не соответсвтуеют заданным", 400);
         }
@@ -119,6 +165,9 @@ public class City {
 
     public void setArea(Object area) throws ValidationException{
         try {
+            if (area == null){
+                throw new ValidationException("Параметр area должен быть Integer", 400);
+            }
             int new_area = (int) (long) area;
             if (new_area < 0) {
                 throw new ValidationException("поле area не соблюдает условию валидации area >= 0", 400);
@@ -135,6 +184,9 @@ public class City {
 
     public void setPopulation(Object population) throws ValidationException {
         try {
+            if (population == null){
+                throw new ValidationException("Параметр population должен быть Integer", 400);
+            }
             int new_population = (int) (long) population;
             if (new_population < 0) {
                 throw new ValidationException("поле population не соблюдает условию валидации population >= 0", 400);
@@ -166,6 +218,9 @@ public class City {
 
     public void setMetersAboveSeaLevel(Object metersAboveSeaLevel) throws ValidationException {
         try {
+            if (metersAboveSeaLevel == null){
+                throw new ValidationException("Параметр metersAboveSeaLevel должен быть Integer", 400);
+            }
             int new_smasl = (int) (long) metersAboveSeaLevel;
             this.metersAboveSeaLevel = new_smasl;
         }catch (ClassCastException e){

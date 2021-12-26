@@ -9,7 +9,5 @@ public enum Climate {
     HUMIDSUBTROPICAL,
     SUBARCTIC;
 
-//    public static Climate getClimateByKey(String key){
-//        for
-//    }
+
 }

@@ -127,6 +127,20 @@ public class Utils {
 
     }
 
+    public static void writeJSONErrorObjectsToResponse(HttpServletResponse resp, ArrayList list) {
+        PrintWriter writer = null;
+        try {
+            Gson gson = new Gson();
+            writer = resp.getWriter();
+            String json = gson.toJson(list);
+            writer.write(json);
+            resp.setStatus(403);
+        } catch (IOException e) {
+
+        }
+
+    }
+
 
     public static JSONObject getJSONFromBody(HttpServletRequest request) throws ValidationException {
         try {

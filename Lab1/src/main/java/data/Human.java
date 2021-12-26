@@ -1,5 +1,6 @@
 package data;
 
+import exceptions.ValidationArrayException;
 import exceptions.ValidationException;
 import org.json.simple.JSONObject;
 
@@ -9,6 +10,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Date;
 
 @Entity
@@ -23,9 +25,21 @@ public class Human {
     private java.time.ZonedDateTime birthday;
 
 
-    public Human(JSONObject json) throws ValidationException{
+    public Human(JSONObject json) throws ValidationException, ValidationArrayException {
+        ArrayList<ValidationException> err_list = new ArrayList<>();
+        try {
             this.setHeight(json.get("height"));
+        }catch (ValidationException e){
+            err_list.add(e);
+        }
+        try {
             this.setBirthday(json.get("birthday"));
+        }catch (ValidationException e){
+            err_list.add(e);
+        }
+        if(err_list.size() != 0){
+            throw new ValidationArrayException(err_list, 400);
+        }
     }
 
 

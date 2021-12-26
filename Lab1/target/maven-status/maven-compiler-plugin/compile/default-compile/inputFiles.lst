@@ -8,7 +8,6 @@
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/dto/HumanDTO.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/api/GetAllCity.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/data/Human.java
-/Users/whatislove118/Desktop/SOA/Lab1/src/main/java/api/HumanController.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/api/CityController.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/data/Climate.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/services/CityService.java
@@ -18,7 +17,7 @@
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/services/HumanService.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/api/GetCityByGovernmentHigherController.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/api/DeleteCityByClimateController.java
-/Users/whatislove118/Desktop/SOA/Lab1/src/main/java/api/CoordinateController.java
+/Users/whatislove118/Desktop/SOA/Lab1/src/main/java/exceptions/ValidationArrayException.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/services/CoordinatesService.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/data/Government.java
 /Users/whatislove118/Desktop/SOA/Lab1/src/main/java/data/Resp.java
