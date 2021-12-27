@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -44,24 +45,24 @@ public class CityController {
     @GetMapping("")
     // TODO FIX FILTER FCK
     public ResponseEntity<PageImpl> listCity(
-            @RequestParam(name="page", defaultValue = "0", required = true) int page,
-            @RequestParam(name="size", defaultValue = "3", required = true) int size,
-            @RequestParam(name="sort", required = false) List<String> sort,
-            @RequestParam(required = false) HashMap<String, Object> filter)  {
+            @RequestParam(required = false) HashMap<String, String> filter)  {
 
         try {
-              filter=null;
-//            if (filter.containsKey("page")){
-//                page= Integer.parseInt((String) filter.remove("page"));
-//            }
-//            if (filter.containsKey("size")){
-//                size= Integer.parseInt((String) filter.remove("size"));
-//            }
+            int page = 0;
+            int size = 3;
+            if (filter.containsKey("page") && filter.containsKey("size")){
+                page = Integer.parseInt(filter.get("page"));
+                filter.remove("page");
+                size = Integer.parseInt(filter.get("size"));
+                filter.remove("size");
+            }
+            System.out.println(page);
+            System.out.println(size);
+//            page = (page < 1) ? 0 : page - 1;
+//            size = (size < 1) ? 10 : size;
             Pageable pageable = PageRequest.of(page, size);
-            ArrayList<City> cities = service.getAllCitys(sort, filter);
-            System.out.println(cities.size());
+            ArrayList<City> cities = service.getAllCitys(filter);
             ArrayList<CityDTO> cityDTOS = converter.convertListCityToListDTO(cities);
-            System.out.println(cityDTOS.size());
             return new ResponseEntity(utils.generateResponse(cityDTOS, pageable), HttpStatus.OK);
         }catch (ValidationException e){
             Detail detail = new Detail(e.getErrMessage());
@@ -84,7 +85,7 @@ public class CityController {
     @PostMapping("/")
     public ResponseEntity<Detail> create( @RequestBody CityDTO cityDTO){
         try {
-            validationService.validateCity(cityDTO);
+            validationService.validateCity(cityDTO, false);
             City city = converter.convertCityFromDTO(cityDTO);
             service.save(city);
             Detail detail = new Detail("created");
@@ -96,7 +97,7 @@ public class CityController {
     }
 
     @DeleteMapping("/{id}/")
-    public ResponseEntity<Detail> create(@PathVariable Long id){
+    public ResponseEntity<Detail> delete(@PathVariable Long id){
         try{
             City city = service.getCity(id);
             service.deleteCity(city);
@@ -110,6 +111,7 @@ public class CityController {
     @PatchMapping("/{id}/")
     public ResponseEntity<CityDTO> update(@RequestBody CityDTO cityDTO, @PathVariable Long id){
         try{
+            validationService.validateCity(cityDTO, true);
             service.update(cityDTO, id);
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         }catch (ValidationException e){

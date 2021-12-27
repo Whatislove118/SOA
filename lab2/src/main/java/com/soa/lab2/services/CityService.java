@@ -124,15 +124,27 @@ public class CityService {
     }
 
 
-    public ArrayList<City> getAllCitys(List<String> sort, HashMap<String, Object> filter) throws ValidationException {
+    public ArrayList<City> getAllCitys(HashMap<String, String> filter) throws ValidationException {
+        List<String> sort = null;
+        try {
+            sort = Arrays.asList(filter.get("sort").split(","));
+        }catch (NullPointerException e){
+
+        }
         ArrayList<City> result = null;
         if (sort == null) {
             result = (ArrayList<City>) cityRepository.findAll();
             System.out.println("no sort");
         } else {
+            for (String s : sort){
+                System.out.println(s);
+            }
+            filter.remove("sort");
             List<Sort.Order> orders = new ArrayList<Sort.Order>();
             for (String value : sort) {
-                orders.add(new Sort.Order(Sort.Direction.ASC, value));
+                if(!value.equals("")) {
+                    orders.add(new Sort.Order(Sort.Direction.ASC, value));
+                }
             }
             try {
                 result = (ArrayList<City>) cityRepository.findAll(Sort.by(orders));
@@ -140,8 +152,7 @@ public class CityService {
                 throw new ValidationException("Wrong parameter for sort", HttpStatus.BAD_REQUEST);
             }
         }
-        if (filter == null) {
-            System.out.println("no f");
+        if (filter.isEmpty()) {
             return result;
         }
         result = filterByField(result, filter);
@@ -149,17 +160,16 @@ public class CityService {
     }
 
 
-    public  ArrayList<City> filterByField(ArrayList<City> list, HashMap<String,Object> map){
-        for (Map.Entry<String, Object> entry : map.entrySet()){
+    public  ArrayList<City> filterByField(ArrayList<City> list, HashMap<String,String> map){
+        for (Map.Entry<String, String> entry : map.entrySet()){
             String key = entry.getKey();
-            String value = (String) entry.getValue().toString().replace("&", "");
-
+            String value = entry.getValue().replace("&", "");
             System.out.println("filtering " + key + ": " + value);
             try {
                 switch (key) {
                     case "id":
                         list = (ArrayList<City>) list.stream().filter(city -> {
-                            System.out.println(city.getId()); return city.getId() == Integer.parseInt(value);}).collect(Collectors.toList());
+                            return city.getId() == Integer.parseInt(value);}).collect(Collectors.toList());
                         break;
                     case "name":
                         list = (ArrayList<City>) list.stream().filter(city -> city.getName().equals(value)).collect(Collectors.toList());

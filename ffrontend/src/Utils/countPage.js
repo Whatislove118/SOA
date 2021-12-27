@@ -10,13 +10,15 @@ export const countPage = (pages, pagesCount, currentPage) => {
             }
         }
         else {
-            for (let i = 1; i <= 10; i++) {
+            for (let i = 0; i <= 10; i++) {
+
                 pages.push(i)
                 if(i == pagesCount) break
             }
         }
     }  else {
-        for (let i = 1; i <= pagesCount; i++) {
+        for (let i = 0; i <= pagesCount-1; i++) {
+
             pages.push(i)
         }
     }

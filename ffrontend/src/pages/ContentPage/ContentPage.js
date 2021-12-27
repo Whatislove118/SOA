@@ -44,7 +44,7 @@ export const ContentPage = () => {
         governor_birthday: false,
     });
 
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const [perPage, setPerPage] = useState(5);
     const [totalCount, setTotalCount] = useState(10);
     const pagesCount = Math.ceil(totalCount/perPage)
@@ -104,23 +104,41 @@ export const ContentPage = () => {
         government, governor_height, governor_birthday])
 
     const getOneCity = () => {
-        fetch(`${api_url}/${id}`)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    if (result.total > 0) {
-                        setContent(result.content);
-                        setTotalCount(result.total);
-                    } else {
-                        getAll();
+        if (id !== "") {
+            fetch(`${api_url}/${id}/`)
+                .then( async res => {
+                    if (res.status !== 404) {
+                        let arr = []
+                        arr.push(await res.json())
+                        console.log(arr);
+                        setContent(arr);
+                        setTotalCount(1)
                     }
-                },
-                (err) => {
+                }, (err) => {
                     setContent([]);
                     setTotalCount(0);
-                }
-            )
+                })
+        }else{
+            getAll();
+        }
     }
+                // .then(res => res.json())
+                // .then(
+                //     (result) => {
+                //         if (result.status !== 404) {
+                //             setContent(result);
+                //             setTotalCount(1);
+                //         } else {
+                //             getAll();
+                //         }
+                //     },
+                //     (err) => {
+                //         setContent([]);
+                //         setTotalCount(0);
+                //     }
+    //             )
+    //     }
+    // }
 
     const getAll = () => {
         fetch(`${api_url}?page=${currentPage}&size=${perPage}`)
@@ -128,7 +146,8 @@ export const ContentPage = () => {
             .then(
                 (result) => {
                     setContent(result.content);
-                    setTotalCount(result.total);
+                    setTotalCount(result.totalElements);
+                    console.log(pages)
                 },
                 (error) => {
                     toast.error("Сервис сейчас недоступен");
@@ -141,10 +160,10 @@ export const ContentPage = () => {
             .then(res => res.json())
             .then(
                 (result) => {
-                    if (perPage > result.total) {
-                        setCurrentPage(1);
+                    if (perPage > result.totalElements) {
+                        setCurrentPage(0);
                     }
-                    setTotalCount(result.total);
+                    setTotalCount(result.totalElements);
                     setContent(result.content);
                 },
                 (error) => {
@@ -155,16 +174,17 @@ export const ContentPage = () => {
 
     const sendSort = () => {
         let url = `${api_url}?page=${currentPage}&size=${perPage}`
+        url+=`&sort=`;
         for (let field in sortStructure) {
             if (sortStructure[field] === true) {
-                url += `&sort=${field}`;
+                url += `${field},`;
             }
         }
         fetch(url)
             .then(res => res.json())
             .then(
                 (result) => {
-                    setTotalCount(result.total);
+                    setTotalCount(result.totalElements);
                     setContent(result.content);
                 },
                 (error) => {
@@ -188,12 +208,12 @@ export const ContentPage = () => {
                     || response.status === 429
                 ) {
                     let a = await response.json().then(data => data);
-                    console.log(a);
                     a.map(err => {
-                        toast.error(err.detailMessage)
+                        console.log(err.detail)
+                        toast.error(err.detail)
+                        return 0;
                     })
-
-                    toast.error(await response.json().then(data => data.message));
+                    // toast.error(await response.json().then(data => data.detail));
                 } else {
                     toast.success("Созданно");
                     sendFilter();
@@ -206,7 +226,7 @@ export const ContentPage = () => {
 
     const deleteCity = (id) => {
         if (id !== "") {
-            fetch(`${api_url}/${id}`,{
+            fetch(`${api_url}/${id}/`,{
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -233,7 +253,7 @@ export const ContentPage = () => {
     const deleteByClimate = () => {
 
         if (climate != "") {
-            fetch(`${base_url}delete/by?climate=${climate}`, {
+            fetch(`${api_url}/delete/by?climate=${climate}`, {
                 method: "DELETE"
             })
                 .then(async (response) => {
@@ -323,8 +343,8 @@ export const ContentPage = () => {
     }
 
     const sendUpdate = (id, field, content) => {
-        fetch(`${api_url}`, {
-            method: "PUT",
+        fetch(`${api_url}/${id}/`, {
+            method: "PATCH",
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
@@ -336,7 +356,7 @@ export const ContentPage = () => {
                     || Math.trunc(response.status / 100) === 5
                     || response.status === 429
                 ) {
-                    toast.error(await response.json().then(data => data.message));
+                    toast.error(await response.json().then(data => data.detail));
                 } else {
                     toast.success("Изменено");
                 }
@@ -424,6 +444,8 @@ export const ContentPage = () => {
             <button onClick={() => deleteByClimate()}>delete by Climate</button>
             <button onClick={() => getWithHigherGovernment()}>Higher government</button>
             <button onClick={() => getWithLowerGovernment()}>Lower government</button>
+            <button onClick={() => getWithLowerGovernment()}>Kill</button>
+            <button onClick={() => getWithLowerGovernment()}>Deport</button>
             <Toaster />
         <table>
             <tr>
@@ -468,7 +490,7 @@ export const ContentPage = () => {
                     <option value="TOTALITARIANISM">TOTALITARIANISM</option>
                 </select></td>
                 <td><input type="text" value={governor_height} onChange={(event) => setGovernorHeight(event.target.value)}/></td>
-                <td><input type="datetime-local" value={governor_birthday} onChange={(event) => setGovernorBirthday(event.target.value)}/></td>
+                <td><input type="date" value={governor_birthday} onChange={(event) => setGovernorBirthday(event.target.value)}/></td>
                 <td> </td>
             </tr>
 
@@ -483,8 +505,8 @@ export const ContentPage = () => {
             <div className="pages">
                 {pages.map((page, index) => <span
                     key={index}
-                    className={currentPage == page ? "current-page" : "page"}
-                    onClick={() => {setCurrentPage(page)}}>{page}</span>)}
+                    className={currentPage == page? "current-page" : "page"}
+                    onClick={() => {setCurrentPage(page)}}>{page+1}</span>)}
             </div>
         </div>
 );

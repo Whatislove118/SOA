@@ -12,12 +12,16 @@ export const createJSON = (id, field, content) => {
                 content = ""
                 return {
                     id: id,
-                    coordinate_x: content
+                    coordinates: {
+                        x: content
+                    }
                 }
             }else {
                 return {
                     id: id,
-                    coordinate_x: parseInt(content)
+                    coordinates: {
+                        x: parseInt(content)
+                    }
                 }
             }
         case ("coordinate_y"):
@@ -25,12 +29,16 @@ export const createJSON = (id, field, content) => {
                 content = ""
                 return {
                     id: id,
-                    coordinate_x: content
+                    coordinates: {
+                        y: content
+                    }
                 }
             }else {
                 return {
                     id: id,
-                    coordinate_y: parseFloat(content)
+                    coordinates: {
+                        y: parseFloat(content)
+                    }
                 }
             }
         case ("area"):
@@ -98,14 +106,26 @@ export const createJSON = (id, field, content) => {
                 content = ""
                 return {
                     id: id,
-                    governor_height: content
+                    governor: {
+                        height: content
+                    }
                 }
             }else{
                 return {
                     id: id,
-                    governor_height: parseFloat(content)
+                    governor: {
+                        height: parseFloat(content)
+                    }
                 }
             }
+        case ("governor_birthday"):
+            return {
+                id: id,
+                governor:{
+                    birthday: content
+                }
+            }
+
 
     }
 }

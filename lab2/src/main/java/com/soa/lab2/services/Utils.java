@@ -19,6 +19,12 @@ public class Utils {
         int start = (int) pageable.getOffset();
         int end = (int) (Math.min((start + pageable.getPageSize()), cities.size()));
         System.out.println(cities.size());
+        if (cities.size() == 0){
+            return new PageImpl(cities, pageable, cities.size()); // important part here
+        }
+//        if (start <= cities.size()) {
+//            return new PageImpl(cities, pageable, cities.size()); // important part here
+//        }
         return new PageImpl(cities.subList(start, end), pageable, cities.size());
 
     }
